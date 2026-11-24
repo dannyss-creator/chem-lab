@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>波以耳定律與微觀氣體分子碰撞模擬器</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  :root {
+    --bg-color: #f4f6f9;
+    --panel-bg: #ffffff;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --border-color: #cbd5e1;
+    --primary: #0d9488;
+    --primary-hover: #0f766e;
+    --accent: #2563eb;
+    --danger: #dc2626;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: "Microsoft JhengHei", "PingFang TC", -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--panel-bg);
+    padding: 14px 24px;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    border-left: 6px solid var(--primary);
+  }
+
+  header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  .equation-banner {
+    font-size: 19px;
+    font-weight: 700;
+    background: #f0fdfa;
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: 1px solid #99f6e4;
+    color: #115e59;
+  }
+
+  .main-grid {
+    display: grid;
+    grid-template-columns: 350px 1fr 1.1fr;
+    gap: 16px;
+    flex: 1;
+  }
+
+  @media (max-width: 1200px) {
+    .main-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .card {
+    background: var(--panel-bg);
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .control-group {
+    margin-bottom: 16px;
+    background: #f8fafc;
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+  }
+
+  .slider-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .val-badge {
+    background: #ccfbf1;
+    color: #115e59;
+    padding: 2px 10px;
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: 18px;
+  }
+
+  input[type="range"] {
+    width: 100%;
+    height: 8px;
+    accent-color: var(--primary);
+    cursor: pointer;
+  }
+
+  input[type="range"]:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .lock-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px dashed #cbd5e1;
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 26px;
+  }
+
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .slider-round {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #94a3b8;
+    transition: .2s;
+    border-radius: 26px;
+  }
+
+  .slider-round:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .2s;
+    border-radius: 50%;
+  }
+
+  input:checked + .slider-round {
+    background-color: var(--primary);
+  }
+
+  input:checked + .slider-round:before {
+    transform: translateX(22px);
+  }
+
+  /* 碰撞計數器與壓力錶 */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .metric-card {
+    background: #0f172a;
+    color: white;
+    padding: 12px;
+    border-radius: 10px;
+    text-align: center;
+  }
+
+  .metric-label {
+    font-size: 13.5px;
+    color: #94a3b8;
+    margin-bottom: 4px;
+    font-weight: 700;
+  }
+
+  .metric-value {
+    font-size: 24px;
+    font-weight: 700;
+    font-family: monospace;
+    color: #38bdf8;
+  }
+
+  .metric-sub {
+    font-size: 12px;
+    color: #cbd5e1;
+    margin-top: 2px;
+  }
+
+  .formula-box {
+    background: #fffbeb;
+    border: 2px solid #fcd34d;
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-top: auto;
+  }
+
+  .formula-title {
+    font-size: 15.5px;
+    font-weight: 700;
+    color: #92400e;
+    margin-bottom: 6px;
+  }
+
+  .formula-math {
+    font-size: 16.5px;
+    font-weight: 700;
+    font-family: monospace;
+    background: white;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid #fde68a;
+    line-height: 1.55;
+    color: #1e293b;
+  }
+
+  /* 中央氣缸畫布 */
+  .canvas-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    flex: 1;
+  }
+
+  canvas#pistonCanvas {
+    width: 100%;
+    height: 395px;
+    border: 2px solid #cbd5e1;
+    border-radius: 10px;
+    background: #ffffff;
+  }
+
+  .tip-banner {
+    width: 100%;
+    margin-top: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1e40af;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.5;
+  }
+
+  /* 右側圖表與重點檢核 */
+  .chart-container {
+    position: relative;
+    height: 290px;
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 14px;
+  }
+
+  .summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+    margin-top: auto;
+  }
+
+  .summary-table th, .summary-table td {
+    border: 1px solid #cbd5e1;
+    padding: 8px 10px;
+    text-align: center;
+  }
+
+  .summary-table th {
+    background: #f1f5f9;
+    color: #0f172a;
+    font-weight: 700;
+  }
+
+  .btn-record {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 9px 14px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-bottom: 10px;
+    width: 100%;
+  }
+  .btn-record:hover { background: #1d4ed8; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🎈 波以耳定律與微觀氣體分子碰撞模擬器</h1>
+  <div class="equation-banner">
+    定量定溫理想氣體：P × V = 定值（k） ｜ 微觀本質：P ∝ 器壁單位面積碰撞頻率 × 單次碰撞動量變化
+  </div>
+</header>
+
+<div class="main-grid">
+  <!-- 左欄：參數控制與微觀量化指標 -->
+  <div class="card">
+    <div class="card-title">🎛️ 氣缸變因與微觀計數器</div>
+
+    <div class="control-group">
+      <div class="slider-header">
+        <span>1. 氣缸體積（V）：</span>
+        <span class="val-badge" id="volDisplay">2.5 L</span>
+      </div>
+      <input type="range" id="volSlider" min="1.0" max="5.0" step="0.1" value="2.5" oninput="updateParams()">
+    </div>
+
+    <div class="control-group">
+      <div class="slider-header">
+        <span>2. 絕對溫度（T）：</span>
+        <span class="val-badge" id="tempDisplay" style="background:#fee2e2; color:#991b1b;">300 K</span>
+      </div>
+      <input type="range" id="tempSlider" min="200" max="600" step="25" value="300" oninput="updateParams()" disabled>
+      <div class="lock-row">
+        <span>🔒 鎖定溫度（驗證波以耳定律）</span>
+        <label class="switch">
+          <input type="checkbox" id="lockTempCheck" checked onchange="toggleTempLock()">
+          <span class="slider-round"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-label">理論氣體壓力 (P)</div>
+        <div class="metric-value" id="pressureVal">1.00 atm</div>
+        <div class="metric-sub">固定莫耳數 n = 0.101 mol</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">器壁碰撞頻率 (實測)</div>
+        <div class="metric-value" id="collisionRateVal" style="color:#facc15;">-- 次/秒</div>
+        <div class="metric-sub">紅色感應區即時統計</div>
+      </div>
+    </div>
+
+    <div class="formula-box">
+      <div class="formula-title">📐 即時公式拆解與微觀速率指標</div>
+      <div class="formula-math" id="formulaCalc">
+        P × V = 1.00 atm × 2.5 L = 2.50 atm·L<br>
+        分子相對平均速率 v<sub>rms</sub> ∝ √T = 1.00 × v<sub>0</sub>
+      </div>
+    </div>
+  </div>
+
+  <!-- 中欄：活塞氣缸與彈性碰撞粒子 -->
+  <div class="card">
+    <div class="card-title">
+      <span>🔬 密閉氣缸微觀分子運動（N = 60 粒子）</span>
+      <span style="font-size:14px; color:#dc2626; font-weight:700;">左側紅線：器壁碰撞感應器</span>
+    </div>
+
+    <div class="canvas-wrapper">
+      <canvas id="pistonCanvas" width="440" height="395"></canvas>
+      <div class="tip-banner" id="microExplain">
+        💡 <strong>操作觀察</strong>：試著將體積從 <strong>4.0 L 縮小為 2.0 L</strong>（溫度鎖定 300 K），觀察分子運動快慢不變，但活動空間減半使器壁碰撞頻率加倍，壓力讀數由 0.63 atm 升為 1.25 atm！
+      </div>
+    </div>
+  </div>
+
+  <!-- 右欄：P-V 關係圖與實驗數據紀錄表 -->
+  <div class="card">
+    <div class="card-title">📈 即時 P - V 關係曲線與數據驗證</div>
+
+    <div class="chart-container">
+      <canvas id="pvChart"></canvas>
+    </div>
+
+    <button class="btn-record" onclick="recordCurrentPoint()">📌 記錄目前 (V, P, 碰撞次數) 至下方實驗表</button>
+
+    <table class="summary-table">
+      <thead>
+        <tr>
+          <th>實驗次數</th>
+          <th>體積 V (L)</th>
+          <th>溫度 T (K)</th>
+          <th>壓力 P (atm)</th>
+          <th>P × V 乘積</th>
+        </tr>
+      </thead>
+      <tbody id="recordBody">
+        <tr>
+          <td>預設基準</td>
+          <td>2.5</td>
+          <td>300</td>
+          <td>1.00</td>
+          <td><strong>2.50</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  const canvas = document.getElementById('pistonCanvas');
+  const ctx = canvas.getContext('2d');
+
+  // 氣缸幾何定義
+  const CYL = {
+    x: 95,
+    w: 250,
+    bottomY: 365,
+    maxHeight: 280 // 對應 5.0 L
+  };
+
+  // 物理狀態參數（基準：V = 2.5 L, T = 300 K 時 P = 1.00 atm, PV = 2.50）
+  let volume = 2.5;
+  let temperature = 300;
+  let pressure = 1.00;
+  const NUM_PARTICLES = 60;
+  let particles = [];
+
+  // 器壁碰撞計數器（滑動時間視窗統計）
+  let collisionTimestamps = [];
+  let wallFlashAlpha = 0;
+  let recordCount = 0;
+
+  // 產生當前溫度下的理論 P-V 等溫曲線資料點
+  function generateIsothermCurve(tempK) {
+    const k = 2.50 * (tempK / 300); // P * V = k
+    const pts = [];
+    for (let v = 1.0; v <= 5.05; v += 0.2) {
+      pts.push({ x: Number(v.toFixed(1)), y: Number((k / v).toFixed(3)) });
+    }
+    return pts;
+  }
+
+  // 初始化 Chart.js 散佈連線圖（確保 X 軸為連續數值座標）
+  const pvCtx = document.getElementById('pvChart').getContext('2d');
+  const pvChart = new Chart(pvCtx, {
+    type: 'scatter',
+    data: {
+      datasets: [
+        {
+          label: '當前實驗狀態點 (V, P)',
+          data: [{ x: 2.5, y: 1.00 }],
+          backgroundColor: '#dc2626',
+          borderColor: '#ffffff',
+          borderWidth: 2,
+          pointRadius: 8,
+          pointHoverRadius: 10,
+          showLine: false,
+          order: 1
+        },
+        {
+          label: '理論等溫線 (P × V = 定值)',
+          data: generateIsothermCurve(300),
+          borderColor: '#0d9488',
+          backgroundColor: 'rgba(13, 148, 136, 0.12)',
+          borderWidth: 2.5,
+          pointRadius: 0,
+          showLine: true,
+          tension: 0.35,
+          order: 2
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 150 },
+      plugins: {
+        title: {
+          display: true,
+          text: '氣體壓力 P 對體積 V 關係圖（波以耳定律雙曲線）',
+          font: { size: 14, weight: 'bold' }
+        },
+        legend: {
+          labels: { font: { size: 12, weight: 'bold' } }
+        }
+      },
+      scales: {
+        x: {
+          type: 'linear',
+          min: 0.5,
+          max: 5.5,
+          title: { display: true, text: '氣缸體積 V (L)', font: { size: 13, weight: 'bold' } }
+        },
+        y: {
+          min: 0,
+          max: 5.2,
+          title: { display: true, text: '氣體壓力 P (atm)', font: { size: 13, weight: 'bold' } }
+        }
+      }
+    }
+  });
+
+  function getChamberTopY() {
+    const chamberHeight = (volume / 5.0) * CYL.maxHeight;
+    return CYL.bottomY - chamberHeight;
+  }
+
+  function initParticles() {
+    particles = [];
+    const topY = getChamberTopY();
+    const speedFactor = Math.sqrt(temperature / 300) * 2.8;
+
+    for (let i = 0; i < NUM_PARTICLES; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const r = 5.5;
+      particles.push({
+        x: CYL.x + r + 4 + Math.random() * (CYL.w - 2 * r - 8),
+        y: topY + r + 4 + Math.random() * (CYL.bottomY - topY - 2 * r - 8),
+        vx: Math.cos(angle) * speedFactor,
+        vy: Math.sin(angle) * speedFactor,
+        r: r
+      });
+    }
+  }
+
+  function toggleTempLock() {
+    const isLocked = document.getElementById('lockTempCheck').checked;
+    const tempSlider = document.getElementById('tempSlider');
+    tempSlider.disabled = isLocked;
+    if (isLocked) {
+      temperature = 300;
+      tempSlider.value = 300;
+      updateParams();
+    }
+  }
+
+  function updateParams() {
+    const oldTemp = temperature;
+    volume = parseFloat(document.getElementById('volSlider').value);
+    temperature = parseInt(document.getElementById('tempSlider').value, 10);
+
+    document.getElementById('volDisplay').textContent = volume.toFixed(1) + ' L';
+    document.getElementById('tempDisplay').textContent = temperature + ' K';
+
+    // 理想氣體計算：P = (2.50 * (T / 300)) / V
+    const pvConst = 2.50 * (temperature / 300);
+    pressure = pvConst / volume;
+
+    document.getElementById('pressureVal').textContent = pressure.toFixed(2) + ' atm';
+
+    // 調整粒子速率以符合 v_rms 正比於 sqrt(T)
+    if (oldTemp !== temperature) {
+      const ratio = Math.sqrt(temperature / oldTemp);
+      particles.forEach(p => {
+        p.vx *= ratio;
+        p.vy *= ratio;
+      });
+    }
+
+    // 若體積縮小使活塞下壓，將超出活塞上方的粒子推入氣室內
+    const topY = getChamberTopY();
+    particles.forEach(p => {
+      if (p.y - p.r < topY) {
+        p.y = topY + p.r + 2;
+        p.vy = Math.abs(p.vy);
+      }
+    });
+
+    // 更新公式拆解區
+    const vRatio = Math.sqrt(temperature / 300).toFixed(2);
+    document.getElementById('formulaCalc').innerHTML = `
+      P × V = ${pressure.toFixed(2)} atm × ${volume.toFixed(1)} L = <span style="color:#0d9488;">${(pressure * volume).toFixed(2)}</span> atm·L<br>
+      分子相對平均速率 v<sub>rms</sub> = <span style="color:#dc2626;">${vRatio}</span> × v<sub>0</sub>（T = ${temperature} K）
+    `;
+
+    // 更新 P-V 圖紅點與等溫線
+    pvChart.data.datasets[0].data = [{ x: volume, y: Number(pressure.toFixed(3)) }];
+    pvChart.data.datasets[1].data = generateIsothermCurve(temperature);
+    pvChart.update();
+  }
+
+  function stepPhysics() {
+    const topY = getChamberTopY();
+    const now = performance.now();
+
+    particles.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+
+      // 左側器壁碰撞（紅色感應器壁）
+      if (p.x - p.r <= CYL.x) {
+        p.x = CYL.x + p.r;
+        p.vx = Math.abs(p.vx);
+        collisionTimestamps.push(now);
+        wallFlashAlpha = 0.85;
+      }
+      // 右側器壁碰撞
+      if (p.x + p.r >= CYL.x + CYL.w) {
+        p.x = CYL.x + CYL.w - p.r;
+        p.vx = -Math.abs(p.vx);
+      }
+      // 活塞下表面碰撞
+      if (p.y - p.r <= topY) {
+        p.y = topY + p.r;
+        p.vy = Math.abs(p.vy);
+      }
+      // 氣缸底部碰撞
+      if (p.y + p.r >= CYL.bottomY) {
+        p.y = CYL.bottomY - p.r;
+        p.vy = -Math.abs(p.vy);
+      }
+    });
+
+    // 保留最近 2.0 秒內的左壁碰撞事件以計算即時碰撞頻率（次/秒）
+    collisionTimestamps = collisionTimestamps.filter(t => now - t <= 2000);
+    if (wallFlashAlpha > 0) wallFlashAlpha = Math.max(0, wallFlashAlpha - 0.05);
+  }
+
+  function drawCylinder() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const topY = getChamberTopY();
+
+    // 1. 氣室內部背景（隨壓力深淺微調淡青色）
+    const bgAlpha = Math.min(0.32, 0.05 + pressure * 0.06);
+    ctx.fillStyle = `rgba(14, 165, 233, ${bgAlpha})`;
+    ctx.fillRect(CYL.x, topY, CYL.w, CYL.bottomY - topY);
+
+    // 2. 繪製氣體分子小球（依速率微調顏色：低溫藍、常溫青、高溫橘紅）
+    let particleColor = '#0284c7';
+    if (temperature > 420) particleColor = '#ea580c';
+    else if (temperature < 260) particleColor = '#2563eb';
+
+    particles.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = particleColor;
+      ctx.fill();
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    });
+
+    // 3. 繪製可移動活塞頭與活塞連桿
+    const pistonHeight = 20;
+    ctx.fillStyle = '#475569';
+    ctx.fillRect(CYL.x + 1, topY - pistonHeight, CYL.w - 2, pistonHeight);
+    ctx.strokeStyle = '#1e293b';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(CYL.x + 1, topY - pistonHeight, CYL.w - 2, pistonHeight);
+
+    // 活塞上方連桿
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillRect(CYL.x + CYL.w / 2 - 10, 12, 20, topY - pistonHeight - 12);
+    ctx.strokeRect(CYL.x + CYL.w / 2 - 10, 12, 20, topY - pistonHeight - 12);
+
+    // 4. 繪製U型開口玻璃氣缸外壁（左、下、右）
+    ctx.strokeStyle = '#1e293b';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(CYL.x, CYL.bottomY - CYL.maxHeight - 25);
+    ctx.lineTo(CYL.x, CYL.bottomY);
+    ctx.lineTo(CYL.x + CYL.w, CYL.bottomY);
+    ctx.lineTo(CYL.x + CYL.w, CYL.bottomY - CYL.maxHeight - 25);
+    ctx.stroke();
+
+    // 5. 繪製左側「器壁碰撞感應器紅線」與碰撞閃光
+    ctx.strokeStyle = `rgba(220, 38, 38, ${0.45 + wallFlashAlpha * 0.55})`;
+    ctx.lineWidth = 5 + wallFlashAlpha * 3;
+    ctx.beginPath();
+    ctx.moveTo(CYL.x, topY);
+    ctx.lineTo(CYL.x, CYL.bottomY);
+    ctx.stroke();
+
+    // 6. 繪製右側氣缸體積刻度線 (1.0L ~ 5.0L)
+    ctx.fillStyle = '#334155';
+    ctx.font = 'bold 13px monospace';
+    ctx.textAlign = 'left';
+    for (let v = 1; v <= 5; v++) {
+      const y = CYL.bottomY - (v / 5.0) * CYL.maxHeight;
+      ctx.strokeStyle = '#64748b';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(CYL.x + CYL.w, y);
+      ctx.lineTo(CYL.x + CYL.w + 10, y);
+      ctx.stroke();
+      ctx.fillText(`${v}.0 L`, CYL.x + CYL.w + 14, y + 4);
+    }
+
+    // 標示當前體積高度線
+    ctx.fillStyle = '#0d9488';
+    ctx.font = 'bold 15px "Microsoft JhengHei"';
+    ctx.textAlign = 'right';
+    ctx.fillText(`V = ${volume.toFixed(1)} L`, CYL.x - 12, topY + 5);
+  }
+
+  function recordCurrentPoint() {
+    recordCount++;
+    const tbody = document.getElementById('recordBody');
+    if (tbody.rows.length >= 6) {
+      tbody.deleteRow(0); // 最多保留最近 6 筆避免版面過長
+    }
+    const row = tbody.insertRow();
+    const pv = (pressure * volume).toFixed(2);
+    row.innerHTML = `
+      <td>第 ${recordCount} 次</td>
+      <td>${volume.toFixed(1)}</td>
+      <td>${temperature}</td>
+      <td>${pressure.toFixed(2)}</td>
+      <td style="color:#0d9488;"><strong>${pv}</strong></td>
+    `;
+  }
+
+  let frameCounter = 0;
+  function loop() {
+    stepPhysics();
+    drawCylinder();
+    frameCounter++;
+    if (frameCounter % 15 === 0) {
+      const ratePerSec = (collisionTimestamps.length / 2.0).toFixed(1);
+      document.getElementById('collisionRateVal').textContent = `${ratePerSec} 次/秒`;
+    }
+    requestAnimationFrame(loop);
+  }
+
+  // 啟動模擬
+  initParticles();
+  updateParams();
+  loop();
+</script>
+</body>
+</html>
