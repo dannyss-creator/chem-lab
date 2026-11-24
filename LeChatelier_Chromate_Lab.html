@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>勒沙特列原理互動實驗室：鉻酸根與二鉻酸根平衡</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  :root {
+    --bg-color: #f4f6f9;
+    --panel-bg: #ffffff;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --border-color: #cbd5e1;
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+    --acid-btn: #dc2626;
+    --acid-hover: #b91c1c;
+    --base-btn: #0284c7;
+    --base-hover: #0369a1;
+    --dilute-btn: #0d9488;
+    --dilute-hover: #0f766e;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: "Microsoft JhengHei", "PingFang TC", -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--panel-bg);
+    padding: 14px 24px;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    border-left: 6px solid #f59e0b;
+  }
+
+  header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  .equation-banner {
+    font-size: 20px;
+    font-weight: 700;
+    background: #fef3c7;
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: 1px solid #fcd34d;
+    color: #92400e;
+    letter-spacing: 0.5px;
+  }
+
+  .yellow-text { color: #d97706; }
+  .orange-text { color: #ea580c; }
+  .blue-text { color: #2563eb; }
+
+  .main-grid {
+    display: grid;
+    grid-template-columns: 340px 1fr 1.15fr;
+    gap: 16px;
+    flex: 1;
+  }
+
+  @media (max-width: 1200px) {
+    .main-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .card {
+    background: var(--panel-bg);
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* 控制面板按鈕 */
+  .control-group {
+    margin-bottom: 18px;
+  }
+
+  .control-label {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    display: block;
+    color: #334155;
+  }
+
+  .btn-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  button {
+    font-size: 17px;
+    font-weight: 700;
+    padding: 12px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.1s, background-color 0.2s;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  button:active {
+    transform: scale(0.98);
+  }
+
+  .btn-acid { background-color: var(--acid-btn); }
+  .btn-acid:hover { background-color: var(--acid-hover); }
+
+  .btn-base { background-color: var(--base-btn); }
+  .btn-base:hover { background-color: var(--base-hover); }
+
+  .btn-dilute { background-color: var(--dilute-btn); }
+  .btn-dilute:hover { background-color: var(--dilute-hover); }
+  .btn-dilute:disabled {
+    background-color: #94a3b8;
+    cursor: not-allowed;
+  }
+
+  .speed-group {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .btn-speed {
+    background-color: #e2e8f0;
+    color: #334155;
+    padding: 10px;
+    font-size: 16px;
+  }
+
+  .btn-speed.active {
+    background-color: var(--primary);
+    color: white;
+  }
+
+  .btn-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 8px;
+  }
+
+  .btn-pause { background-color: #475569; }
+  .btn-pause:hover { background-color: #334155; }
+
+  .btn-reset { background-color: #64748b; }
+  .btn-reset:hover { background-color: #475569; }
+
+  /* 數據看板 */
+  .stats-box {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: auto;
+  }
+
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 16px;
+    padding: 5px 0;
+    border-bottom: 1px dashed #cbd5e1;
+  }
+
+  .stat-row:last-child {
+    border-bottom: none;
+  }
+
+  .stat-val {
+    font-weight: 700;
+    font-family: monospace;
+    font-size: 18px;
+  }
+
+  /* Canvas 模擬區 */
+  .canvas-wrapper {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 360px;
+  }
+
+  canvas#simCanvas {
+    width: 100%;
+    height: 380px;
+    border: 3px solid #334155;
+    border-radius: 10px;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.08);
+    transition: background-color 0.3s ease;
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    justify-content: center;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .dot-yellow {
+    width: 16px; height: 16px; border-radius: 50%;
+    background: #facc15; border: 2px solid #854d0e;
+    display: inline-block;
+  }
+
+  .dot-orange {
+    display: inline-flex; align-items: center;
+  }
+  .dot-orange span {
+    width: 15px; height: 15px; border-radius: 50%;
+    background: #f97316; border: 2px solid #7c2d12;
+    display: inline-block;
+  }
+  .dot-orange span:last-child {
+    margin-left: -4px;
+  }
+
+  .dot-blue {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: #2563eb; border: 1px solid #1e3a8a;
+    display: inline-block;
+  }
+
+  .status-alert {
+    margin-top: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    text-align: center;
+    background: #eff6ff;
+    color: #1e40af;
+    border: 1px solid #bfdbfe;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* 圖表區 */
+  .charts-container {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    flex: 1;
+  }
+
+  .chart-box {
+    position: relative;
+    height: 220px;
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 8px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🧪 勒沙特列原理互動實驗室：鉻酸根與二鉻酸根平衡</h1>
+  <div class="equation-banner">
+    <span class="yellow-text">2 CrO<sub>4</sub><sup>2−</sup>(aq)</span> + 
+    <span class="blue-text">2 H<sup>+</sup>(aq)</span> ⇌ 
+    <span class="orange-text">Cr<sub>2</sub>O<sub>7</sub><sup>2−</sup>(aq)</span> + H<sub>2</sub>O(l)
+  </div>
+</header>
+
+<div class="main-grid">
+  <!-- 左欄：控制面板與計量數據 -->
+  <div class="card">
+    <div class="card-title">🎛️ 實驗操作控制面板</div>
+
+    <div class="control-group">
+      <span class="control-label">1. 施加干擾條件（改變濃度）</span>
+      <div class="btn-stack">
+        <button class="btn-acid" onclick="addAcid()">➕ 滴加 H<sup>+</sup> (加入強酸)</button>
+        <button class="btn-base" onclick="addBase()">💧 滴加 OH<sup>−</sup> (消耗 H<sup>+</sup>)</button>
+        <button class="btn-dilute" id="diluteBtn" onclick="diluteWater()">🌊 加水稀釋 (總體積變為 2 倍)</button>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <span class="control-label">2. 反應模擬速率</span>
+      <div class="speed-group">
+        <button class="btn-speed active" id="spd1" onclick="setSpeed(1)">1x 正常</button>
+        <button class="btn-speed" id="spd3" onclick="setSpeed(3)">3x 加速</button>
+        <button class="btn-speed" id="spd5" onclick="setSpeed(5)">5x 極速</button>
+      </div>
+      <div class="btn-row">
+        <button class="btn-pause" id="pauseBtn" onclick="togglePause()">⏸️ 暫停</button>
+        <button class="btn-reset" onclick="resetSim()">🔄 重置實驗</button>
+      </div>
+    </div>
+
+    <div class="stats-box">
+      <div class="control-label" style="margin-bottom:6px;">📊 微觀粒子計數（嚴格原子守恆）</div>
+      <div class="stat-row">
+        <span>黃色 CrO<sub>4</sub><sup>2−</sup> 數：</span>
+        <span class="stat-val yellow-text" id="cntYellow">24</span>
+      </div>
+      <div class="stat-row">
+        <span>橘色 Cr<sub>2</sub>O<sub>7</sub><sup>2−</sup> 數：</span>
+        <span class="stat-val orange-text" id="cntOrange">12</span>
+      </div>
+      <div class="stat-row">
+        <span>藍色 H<sup>+</sup> 離子數：</span>
+        <span class="stat-val blue-text" id="cntH">16</span>
+      </div>
+      <div class="stat-row">
+        <span>溶液相對體積 (V)：</span>
+        <span class="stat-val" id="volVal">1.0 L</span>
+      </div>
+      <div class="stat-row" style="background:#fef9c3; padding:6px; border-radius:4px; margin-top:4px;">
+        <span><strong>總鉻原子數 (Cr)</strong>：</span>
+        <span class="stat-val" id="totalCr" style="color:#0f172a;">48 (恆定)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 中欄：微觀動態與溶液巨觀顏色 -->
+  <div class="card">
+    <div class="card-title">
+      <span>🔬 微觀粒子碰撞與巨觀溶液顯色</span>
+      <span style="font-size:14px; color:#64748b;" id="eqIndicator">狀態：動態平衡中</span>
+    </div>
+
+    <div class="canvas-wrapper">
+      <canvas id="simCanvas" width="460" height="380"></canvas>
+      
+      <div class="legend">
+        <div class="legend-item"><span class="dot-yellow"></span> CrO<sub>4</sub><sup>2−</sup> (黃色單體)</div>
+        <div class="legend-item"><span class="dot-orange"><span></span><span></span></span> Cr<sub>2</sub>O<sub>7</sub><sup>2−</sup> (橘色雙體)</div>
+        <div class="legend-item"><span class="dot-blue"></span> H<sup>+</sup> (氫離子)</div>
+      </div>
+
+      <div class="status-alert" id="statusMsg">
+        系統處於初始動態平衡，正反應速率 = 逆反應速率。
+      </div>
+    </div>
+  </div>
+
+  <!-- 右欄：雙即時數據圖表 -->
+  <div class="card">
+    <div class="card-title">📈 即時動力學與平衡圖表</div>
+    <div class="charts-container">
+      <div class="chart-box">
+        <canvas id="concChart"></canvas>
+      </div>
+      <div class="chart-box">
+        <canvas id="rateChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const canvas = document.getElementById('simCanvas');
+  const ctx = canvas.getContext('2d');
+
+  // 模擬參數設定
+  const TOTAL_CR = 48; // 總鉻原子數嚴格守恆 (黃球數 + 2 * 橘球數 = 48)
+  let volume = 1.0;    // 相對體積 (1.0 L 或 2.0 L)
+  let simSpeed = 1;
+  let isPaused = false;
+  let tickCount = 0;
+
+  // 粒子陣列
+  let yellows = []; // CrO4^2-
+  let oranges = []; // Cr2O7^2-
+  let hydrogens = []; // H+
+  let flashes = []; // 碰撞反應閃光特效
+
+  // 速率常數設定（讓平衡比例自然呈現）
+  // 平衡條件：kf * [CrO4]^2 * [H+]^2 ≈ kr * [Cr2O7]
+  const kf = 0.00028; 
+  const kr = 0.032;
+
+  // 圖表資料歷史
+  const MAX_POINTS = 60;
+  let timeLabels = [];
+  let histYellow = [];
+  let histOrange = [];
+  let histH = [];
+  let histRf = [];
+  let histRr = [];
+
+  // 初始化 Chart.js
+  const concCtx = document.getElementById('concChart').getContext('2d');
+  const concChart = new Chart(concCtx, {
+    type: 'line',
+    data: {
+      labels: timeLabels,
+      datasets: [
+        {
+          label: '[CrO4²⁻] 黃色',
+          data: histYellow,
+          borderColor: '#eab308',
+          backgroundColor: 'rgba(234, 179, 8, 0.1)',
+          borderWidth: 2.5,
+          pointRadius: 0,
+          tension: 0.2
+        },
+        {
+          label: '[Cr2O7²⁻] 橘色',
+          data: histOrange,
+          borderColor: '#ea580c',
+          backgroundColor: 'rgba(234, 88, 12, 0.1)',
+          borderWidth: 2.5,
+          pointRadius: 0,
+          tension: 0.2
+        },
+        {
+          label: '[H⁺] 氫離子',
+          data: histH,
+          borderColor: '#2563eb',
+          borderWidth: 2,
+          borderDash: [5, 3],
+          pointRadius: 0,
+          tension: 0.2
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
+      plugins: {
+        title: { display: true, text: '各物種相對濃度隨時間變化 (C - t 圖)', font: { size: 14, weight: 'bold' } },
+        legend: { labels: { font: { size: 12, weight: 'bold' }, boxWidth: 14 } }
+      },
+      scales: {
+        x: { display: false },
+        y: {
+          min: 0,
+          max: 45,
+          title: { display: true, text: '相對濃度 (N / V)', font: { size: 12, weight: 'bold' } }
+        }
+      }
+    }
+  });
+
+  const rateCtx = document.getElementById('rateChart').getContext('2d');
+  const rateChart = new Chart(rateCtx, {
+    type: 'line',
+    data: {
+      labels: timeLabels,
+      datasets: [
+        {
+          label: '正反應速率 (r正)',
+          data: histRf,
+          borderColor: '#dc2626',
+          borderWidth: 2.5,
+          pointRadius: 0,
+          tension: 0.2
+        },
+        {
+          label: '逆反應速率 (r逆)',
+          data: histRr,
+          borderColor: '#0d9488',
+          borderWidth: 2.5,
+          pointRadius: 0,
+          tension: 0.2
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
+      plugins: {
+        title: { display: true, text: '正逆反應速率隨時間變化 (r - t 圖)', font: { size: 14, weight: 'bold' } },
+        legend: { labels: { font: { size: 12, weight: 'bold' }, boxWidth: 14 } }
+      },
+      scales: {
+        x: { display: false },
+        y: {
+          min: 0,
+          max: 2.5,
+          title: { display: true, text: '反應速率 (r)', font: { size: 12, weight: 'bold' } }
+        }
+      }
+    }
+  });
+
+  function randVel(scale = 2.0) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = (0.6 + Math.random() * 0.8) * scale;
+    return { vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed };
+  }
+
+  function createYellow(x, y) {
+    const v = randVel(2.0);
+    return {
+      x: x ?? (30 + Math.random() * (canvas.width - 60)),
+      y: y ?? (30 + Math.random() * (canvas.height - 60)),
+      vx: v.vx, vy: v.vy,
+      r: 10
+    };
+  }
+
+  function createOrange(x, y) {
+    const v = randVel(1.5);
+    return {
+      x: x ?? (35 + Math.random() * (canvas.width - 70)),
+      y: y ?? (35 + Math.random() * (canvas.height - 70)),
+      vx: v.vx, vy: v.vy,
+      angle: Math.random() * Math.PI * 2,
+      vAngle: (Math.random() - 0.5) * 0.06,
+      r: 14
+    };
+  }
+
+  function createHydrogen(x, y) {
+    const v = randVel(3.0);
+    return {
+      x: x ?? (20 + Math.random() * (canvas.width - 40)),
+      y: y ?? (20 + Math.random() * (canvas.height - 40)),
+      vx: v.vx, vy: v.vy,
+      r: 5
+    };
+  }
+
+  function initSim() {
+    yellows = [];
+    oranges = [];
+    hydrogens = [];
+    flashes = [];
+    volume = 1.0;
+    tickCount = 0;
+
+    document.getElementById('diluteBtn').disabled = false;
+    document.getElementById('diluteBtn').innerHTML = '🌊 加水稀釋 (總體積變為 2 倍)';
+
+    // 初始平衡：24 個黃球 + 12 個橘球 (24 + 2*12 = 48 Cr)，16 個 H+
+    for (let i = 0; i < 24; i++) yellows.push(createYellow());
+    for (let i = 0; i < 12; i++) oranges.push(createOrange());
+    for (let i = 0; i < 16; i++) hydrogens.push(createHydrogen());
+
+    timeLabels.length = 0;
+    histYellow.length = 0;
+    histOrange.length = 0;
+    histH.length = 0;
+    histRf.length = 0;
+    histRr.length = 0;
+
+    // 預填 25 個平穩歷史數據點，讓初始狀態呈現水平平衡線
+    for (let i = 0; i < 25; i++) {
+      recordMetrics(true);
+    }
+    updateUIStats();
+    setStatus("系統處於初始動態平衡，正反應速率 = 逆反應速率。", "#eff6ff", "#1e40af");
+  }
+
+  function setStatus(msg, bg, color) {
+    const el = document.getElementById('statusMsg');
+    el.innerHTML = msg;
+    el.style.backgroundColor = bg;
+    el.style.color = color;
+  }
+
+  // 操作按鈕功能
+  function addAcid() {
+    for (let i = 0; i < 14; i++) {
+      hydrogens.push(createHydrogen(canvas.width / 2 + (Math.random() - 0.5) * 80, 30));
+    }
+    setStatus("⚠️ 滴加 H⁺！[H⁺] 瞬間上升，正反應速率大增，平衡向右移動（溶液變橘）。", "#fef2f2", "#991b1b");
+  }
+
+  function addBase() {
+    if (hydrogens.length <= 2) {
+      setStatus("ℹ️ 溶液中 H⁺ 濃度已極低，無法再大幅減少。", "#f1f5f9", "#475569");
+      return;
+    }
+    const removeCount = Math.min(hydrogens.length - 2, 12);
+    hydrogens.splice(0, removeCount);
+    setStatus("💧 滴加 OH⁻ 消耗 H⁺！[H⁺] 瞬間下降，正反應速率驟降，平衡向左移動（溶液變黃）。", "#f0f9ff", "#075985");
+  }
+
+  function diluteWater() {
+    if (volume >= 2.0) return;
+    volume = 2.0;
+    document.getElementById('diluteBtn').disabled = true;
+    document.getElementById('diluteBtn').innerHTML = '✅ 已稀釋為 2 倍體積 (V = 2.0 L)';
+    setStatus("🌊 加水稀釋體積加倍！所有離子濃度瞬間減半；因反應物係數和 (4) > 生成物 (1)，平衡向左移動（偏黃）。", "#f0fdfa", "#115e59");
+  }
+
+  function setSpeed(s) {
+    simSpeed = s;
+    document.querySelectorAll('.btn-speed').forEach(b => b.classList.remove('active'));
+    document.getElementById('spd' + s).classList.add('active');
+  }
+
+  function togglePause() {
+    isPaused = !isPaused;
+    document.getElementById('pauseBtn').innerHTML = isPaused ? '▶️ 繼續' : '⏸️ 暫停';
+  }
+
+  function resetSim() {
+    isPaused = false;
+    document.getElementById('pauseBtn').innerHTML = '⏸️ 暫停';
+    initSim();
+  }
+
+  // 邊界反彈邏輯（嚴格計算半徑避免穿牆）
+  function moveParticle(p) {
+    p.x += p.vx;
+    p.y += p.vy;
+    if (p.angle !== undefined) p.angle += p.vAngle;
+
+    if (p.x - p.r < 0) { p.x = p.r; p.vx *= -1; }
+    if (p.x + p.r > canvas.width) { p.x = canvas.width - p.r; p.vx *= -1; }
+    if (p.y - p.r < 0) { p.y = p.r; p.vy *= -1; }
+    if (p.y + p.r > canvas.height) { p.y = canvas.height - p.r; p.vy *= -1; }
+  }
+
+  // 化學反應動力學步進（嚴格遵守 2 黃 + 2 H+ <-> 1 橘 的原子守恆）
+  function stepChemistry() {
+    const cY = yellows.length / volume;
+    const cO = oranges.length / volume;
+    const cH = hydrogens.length / volume;
+
+    // 計算微觀反應機率（考慮體積稀釋效應）
+    // 正反應：2 CrO4^2- + 2 H+ -> Cr2O7^2- + H2O (速率正比於 [CrO4]^2 * [H+]^2 * V)
+    const rateForward = kf * Math.pow(cY, 2) * Math.pow(cH, 2) * volume;
+    // 逆反應：Cr2O7^2- -> 2 CrO4^2- (速率正比於 [Cr2O7] * V)
+    const rateReverse = kr * cO * volume;
+
+    // 嘗試發生正反應（2 個黃球 + 2 個 H+ 結合為 1 個橘球）
+    if (yellows.length >= 2 && hydrogens.length >= 2 && Math.random() < rateForward) {
+      // 尋找距離較近的一對黃球，讓視覺更合理
+      let idx1 = Math.floor(Math.random() * yellows.length);
+      let p1 = yellows[idx1];
+      let idx2 = -1;
+      let minDist = Infinity;
+
+      for (let i = 0; i < yellows.length; i++) {
+        if (i === idx1) continue;
+        const d = Math.hypot(yellows[i].x - p1.x, yellows[i].y - p1.y);
+        if (d < minDist) {
+          minDist = d;
+          idx2 = i;
+        }
+      }
+
+      if (idx2 !== -1) {
+        const p2 = yellows[idx2];
+        const midX = (p1.x + p2.x) / 2;
+        const midY = (p1.y + p2.y) / 2;
+
+        // 移除 2 個黃球（先移除索引較大者）
+        const high = Math.max(idx1, idx2);
+        const low = Math.min(idx1, idx2);
+        yellows.splice(high, 1);
+        yellows.splice(low, 1);
+
+        // 消耗 2 個 H+（為維持系統可逆循環，將 H+ 結合於二鉻酸根結構中，逆反應時釋放）
+        hydrogens.splice(0, 2);
+
+        // 生成 1 個橘色雙體
+        oranges.push(createOrange(midX, midY));
+        flashes.push({ x: midX, y: midY, r: 6, maxR: 26, color: 'rgba(234, 88, 12, 0.7)' });
+      }
+    }
+
+    // 嘗試發生逆反應（1 個橘球分解為 2 個黃球 + 釋放 2 個 H+）
+    if (oranges.length >= 1 && Math.random() < rateReverse) {
+      const idx = Math.floor(Math.random() * oranges.length);
+      const o = oranges[idx];
+      oranges.splice(idx, 1);
+
+      // 精準分裂為 2 個黃球
+      yellows.push(createYellow(o.x - 8, o.y));
+      yellows.push(createYellow(o.x + 8, o.y));
+
+      // 釋放回 2 個 H+
+      hydrogens.push(createHydrogen(o.x, o.y - 8));
+      hydrogens.push(createHydrogen(o.x, o.y + 8));
+
+      flashes.push({ x: o.x, y: o.y, r: 6, maxR: 26, color: 'rgba(234, 179, 8, 0.7)' });
+    }
+  }
+
+  function recordMetrics(isInitial = false) {
+    const cY = yellows.length / volume;
+    const cO = oranges.length / volume;
+    const cH = hydrogens.length / volume;
+
+    // 計算瞬時速率供圖表顯示（調整顯示縮放比例讓兩條線清楚對照）
+    let rfDisplay = (kf * Math.pow(cY, 2) * Math.pow(cH, 2)) * 2.2;
+    let rrDisplay = (kr * cO) * 2.2;
+
+    if (isInitial) {
+      rfDisplay = 0.85;
+      rrDisplay = 0.85;
+    }
+
+    timeLabels.push('');
+    histYellow.push(Number(cY.toFixed(1)));
+    histOrange.push(Number(cO.toFixed(1)));
+    histH.push(Number(cH.toFixed(1)));
+    histRf.push(Number(Math.min(rfDisplay, 2.45).toFixed(3)));
+    histRr.push(Number(Math.min(rrDisplay, 2.45).toFixed(3)));
+
+    if (timeLabels.length > MAX_POINTS) {
+      timeLabels.shift();
+      histYellow.shift();
+      histOrange.shift();
+      histH.shift();
+      histRf.shift();
+      histRr.shift();
+    }
+  }
+
+  function updateUIStats() {
+    document.getElementById('cntYellow').textContent = yellows.length;
+    document.getElementById('cntOrange').textContent = oranges.length;
+    document.getElementById('cntH').textContent = hydrogens.length;
+    document.getElementById('volVal').textContent = volume.toFixed(1) + ' L';
+    
+    const checkCr = yellows.length + oranges.length * 2;
+    document.getElementById('totalCr').textContent = `${checkCr} (恆定)`;
+  }
+
+  function draw() {
+    // 計算溶液巨觀背景色（根據黃球與橘球濃度比例漸變，稀釋時顏色變淡）
+    const orangeFraction = (oranges.length * 2) / TOTAL_CR; // 0 (純黃) ~ 1 (純橘)
+    const alpha = volume === 1.0 ? 0.34 : 0.17; // 稀釋時溶液顏色變淺
+
+    // RGB 插值：黃色 (254, 240, 138) -> 橘紅色 (251, 146, 60)
+    const r = Math.round(254 - orangeFraction * 3);
+    const g = Math.round(235 - orangeFraction * 105);
+    const b = Math.round(110 - orangeFraction * 65);
+
+    ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // 繪製碰撞反應閃光波紋
+    for (let i = flashes.length - 1; i >= 0; i--) {
+      const f = flashes[i];
+      ctx.beginPath();
+      ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+      ctx.strokeStyle = f.color;
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      f.r += 1.5;
+      if (f.r > f.maxR) flashes.splice(i, 1);
+    }
+
+    // 繪製藍色 H+ 離子
+    hydrogens.forEach(h => {
+      ctx.beginPath();
+      ctx.arc(h.x, h.y, h.r, 0, Math.PI * 2);
+      ctx.fillStyle = '#2563eb';
+      ctx.fill();
+      ctx.strokeStyle = '#1e3a8a';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    });
+
+    // 繪製黃色 CrO4^2- 單體圓球
+    yellows.forEach(y => {
+      ctx.beginPath();
+      ctx.arc(y.x, y.y, y.r, 0, Math.PI * 2);
+      ctx.fillStyle = '#facc15';
+      ctx.fill();
+      ctx.strokeStyle = '#854d0e';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    });
+
+    // 繪製橘色 Cr2O7^2- 雙連體圓球
+    oranges.forEach(o => {
+      ctx.save();
+      ctx.translate(o.x, o.y);
+      ctx.rotate(o.angle);
+
+      // 左球
+      ctx.beginPath();
+      ctx.arc(-6, 0, 9.5, 0, Math.PI * 2);
+      ctx.fillStyle = '#f97316';
+      ctx.fill();
+      ctx.strokeStyle = '#7c2d12';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // 右球
+      ctx.beginPath();
+      ctx.arc(6, 0, 9.5, 0, Math.PI * 2);
+      ctx.fillStyle = '#fb923c';
+      ctx.fill();
+      ctx.strokeStyle = '#7c2d12';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.restore();
+    });
+  }
+
+  function loop() {
+    if (!isPaused) {
+      for (let s = 0; s < simSpeed; s++) {
+        yellows.forEach(moveParticle);
+        oranges.forEach(moveParticle);
+        hydrogens.forEach(moveParticle);
+        stepChemistry();
+        tickCount++;
+
+        if (tickCount % 12 === 0) {
+          recordMetrics(false);
+          concChart.update('none');
+          rateChart.update('none');
+          updateUIStats();
+        }
+      }
+    }
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  // 啟動模擬
+  initSim();
+  loop();
+</script>
+</body>
+</html>
