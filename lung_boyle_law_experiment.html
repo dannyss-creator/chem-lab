@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="zh-TW"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>人體肺部呼吸實驗與波以耳定律 (Boyle's Law) 互動教學模型</title>
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Google Fonts Noto Sans TC 確保繁體中文字體清晰端正 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&amp;display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-card: #1e293b;
+            --text-main: #f8fafc;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            font-size: 22px;
+            line-height: 1.6;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        /* 超大高對比橫膈膜滑桿樣式 */
+        input[type="range"].mega-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 32px;
+            background: linear-gradient(90deg, #f59e0b 0%, #64748b 50%, #38bdf8 100%);
+            border-radius: 16px;
+            outline: none;
+            border: 4px solid #cbd5e1;
+            box-shadow: inset 0 4px 8px rgba(0,0,0,0.7);
+            cursor: pointer;
+        }
+
+        input[type="range"].mega-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 7px solid #0284c7;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.9), 0 0 20px rgba(56, 189, 248, 0.9);
+            cursor: grab;
+            transition: transform 0.15s ease, border-color 0.15s ease;
+        }
+
+        input[type="range"].mega-slider::-webkit-slider-thumb:active {
+            cursor: grabbing;
+            transform: scale(1.15);
+            border-color: #fbbf24;
+        }
+
+        input[type="range"].mega-slider::-moz-range-thumb {
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 7px solid #0284c7;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.9);
+            cursor: grab;
+        }
+
+        /* 卡片高對比邊框與陰影 */
+        .edu-card {
+            background-color: #1e293b;
+            border: 3px solid #475569;
+            border-radius: 22px;
+            box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.6);
+        }
+
+        /* SVG 拖曳互動區域游標 */
+        .svg-draggable {
+            cursor: ns-resize;
+            touch-action: none;
+        }
+
+        /* 表格格線清晰化 */
+        .comparison-table th, .comparison-table td {
+            border: 2px solid #475569;
+            padding: 18px 22px;
+        }
+
+        /* 氣流發光呼吸燈效 */
+        @keyframes pulse-glow {
+            0%, 100% { filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.8)); }
+            50% { filter: drop-shadow(0 0 16px rgba(56, 189, 248, 1)); }
+        }
+        .glow-effect {
+            animation: pulse-glow 2s infinite;
+        }
+    </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.fixed{position:fixed}.sticky{position:sticky}.bottom-6{bottom:1.5rem}.right-6{right:1.5rem}.top-0{top:0px}.z-50{z-index:50}.mx-auto{margin-left:auto;margin-right:auto}.my-1{margin-top:0.25rem;margin-bottom:0.25rem}.mb-1{margin-bottom:0.25rem}.mb-3{margin-bottom:0.75rem}.mt-1{margin-top:0.25rem}.inline-block{display:inline-block}.flex{display:flex}.grid{display:grid}.hidden{display:none}.h-10{height:2.5rem}.h-16{height:4rem}.h-4{height:1rem}.h-7{height:1.75rem}.h-8{height:2rem}.min-h-screen{min-height:100vh}.w-1\/4{width:25%}.w-10{width:2.5rem}.w-16{width:4rem}.w-4{width:1rem}.w-7{width:1.75rem}.w-8{width:2rem}.w-full{width:100%}.max-w-\[1680px\]{max-width:1680px}.shrink-0{flex-shrink:0}.border-collapse{border-collapse:collapse}.transform{transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@keyframes bounce{0%, 100%{transform:translateY(-25%);animation-timing-function:cubic-bezier(0.8,0,1,1)}50%{transform:none;animation-timing-function:cubic-bezier(0,0,0.2,1)}}.animate-bounce{animation:bounce 1s infinite}@keyframes ping{75%, 100%{transform:scale(2);opacity:0}}.animate-ping{animation:ping 1s cubic-bezier(0, 0, 0.2, 1) infinite}.cursor-pointer{cursor:pointer}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-start{align-items:flex-start}.items-center{align-items:center}.items-stretch{align-items:stretch}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-2{gap:0.5rem}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.gap-6{gap:1.5rem}.gap-8{gap:2rem}.space-y-2 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.5rem * var(--tw-space-y-reverse))}.space-y-4 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem * var(--tw-space-y-reverse))}.space-y-5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.25rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.25rem * var(--tw-space-y-reverse))}.space-y-6 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.5rem * var(--tw-space-y-reverse))}.space-y-8 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(2rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(2rem * var(--tw-space-y-reverse))}.divide-y > :not([hidden]) ~ :not([hidden]){--tw-divide-y-reverse:0;border-top-width:calc(1px * calc(1 - var(--tw-divide-y-reverse)));border-bottom-width:calc(1px * var(--tw-divide-y-reverse))}.divide-slate-700 > :not([hidden]) ~ :not([hidden]){--tw-divide-opacity:1;border-color:rgb(51 65 85 / var(--tw-divide-opacity, 1))}.self-stretch{align-self:stretch}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.rounded{border-radius:0.25rem}.rounded-2xl{border-radius:1rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:0.5rem}.rounded-xl{border-radius:0.75rem}.border{border-width:1px}.border-2{border-width:2px}.border-4{border-width:4px}.border-b-2{border-bottom-width:2px}.border-b-4{border-bottom-width:4px}.border-l-8{border-left-width:8px}.border-amber-200{--tw-border-opacity:1;border-color:rgb(253 230 138 / var(--tw-border-opacity, 1))}.border-amber-400{--tw-border-opacity:1;border-color:rgb(251 191 36 / var(--tw-border-opacity, 1))}.border-amber-400\/80{border-color:rgb(251 191 36 / 0.8)}.border-amber-500{--tw-border-opacity:1;border-color:rgb(245 158 11 / var(--tw-border-opacity, 1))}.border-amber-500\/80{border-color:rgb(245 158 11 / 0.8)}.border-emerald-200{--tw-border-opacity:1;border-color:rgb(167 243 208 / var(--tw-border-opacity, 1))}.border-emerald-300{--tw-border-opacity:1;border-color:rgb(110 231 183 / var(--tw-border-opacity, 1))}.border-emerald-400{--tw-border-opacity:1;border-color:rgb(52 211 153 / var(--tw-border-opacity, 1))}.border-emerald-500\/80{border-color:rgb(16 185 129 / 0.8)}.border-rose-400{--tw-border-opacity:1;border-color:rgb(251 113 133 / var(--tw-border-opacity, 1))}.border-rose-500\/70{border-color:rgb(244 63 94 / 0.7)}.border-rose-500\/80{border-color:rgb(244 63 94 / 0.8)}.border-sky-200{--tw-border-opacity:1;border-color:rgb(186 230 253 / var(--tw-border-opacity, 1))}.border-sky-400{--tw-border-opacity:1;border-color:rgb(56 189 248 / var(--tw-border-opacity, 1))}.border-sky-400\/70{border-color:rgb(56 189 248 / 0.7)}.border-sky-500\/70{border-color:rgb(14 165 233 / 0.7)}.border-sky-500\/80{border-color:rgb(14 165 233 / 0.8)}.border-slate-400{--tw-border-opacity:1;border-color:rgb(148 163 184 / var(--tw-border-opacity, 1))}.border-slate-600{--tw-border-opacity:1;border-color:rgb(71 85 105 / var(--tw-border-opacity, 1))}.border-slate-700{--tw-border-opacity:1;border-color:rgb(51 65 85 / var(--tw-border-opacity, 1))}.border-slate-800{--tw-border-opacity:1;border-color:rgb(30 41 59 / var(--tw-border-opacity, 1))}.bg-\[\#070d19\]{--tw-bg-opacity:1;background-color:rgb(7 13 25 / var(--tw-bg-opacity, 1))}.bg-amber-400{--tw-bg-opacity:1;background-color:rgb(251 191 36 / var(--tw-bg-opacity, 1))}.bg-amber-400\/20{background-color:rgb(251 191 36 / 0.2)}.bg-amber-500{--tw-bg-opacity:1;background-color:rgb(245 158 11 / var(--tw-bg-opacity, 1))}.bg-amber-950{--tw-bg-opacity:1;background-color:rgb(69 26 3 / var(--tw-bg-opacity, 1))}.bg-emerald-400{--tw-bg-opacity:1;background-color:rgb(52 211 153 / var(--tw-bg-opacity, 1))}.bg-emerald-500{--tw-bg-opacity:1;background-color:rgb(16 185 129 / var(--tw-bg-opacity, 1))}.bg-emerald-600{--tw-bg-opacity:1;background-color:rgb(5 150 105 / var(--tw-bg-opacity, 1))}.bg-emerald-950{--tw-bg-opacity:1;background-color:rgb(2 44 34 / var(--tw-bg-opacity, 1))}.bg-rose-400{--tw-bg-opacity:1;background-color:rgb(251 113 133 / var(--tw-bg-opacity, 1))}.bg-rose-500{--tw-bg-opacity:1;background-color:rgb(244 63 94 / var(--tw-bg-opacity, 1))}.bg-rose-950\/90{background-color:rgb(76 5 25 / 0.9)}.bg-sky-400{--tw-bg-opacity:1;background-color:rgb(56 189 248 / var(--tw-bg-opacity, 1))}.bg-sky-500{--tw-bg-opacity:1;background-color:rgb(14 165 233 / var(--tw-bg-opacity, 1))}.bg-sky-950{--tw-bg-opacity:1;background-color:rgb(8 47 73 / var(--tw-bg-opacity, 1))}.bg-sky-950\/80{background-color:rgb(8 47 73 / 0.8)}.bg-sky-950\/90{background-color:rgb(8 47 73 / 0.9)}.bg-slate-700{--tw-bg-opacity:1;background-color:rgb(51 65 85 / var(--tw-bg-opacity, 1))}.bg-slate-800{--tw-bg-opacity:1;background-color:rgb(30 41 59 / var(--tw-bg-opacity, 1))}.bg-slate-900{--tw-bg-opacity:1;background-color:rgb(15 23 42 / var(--tw-bg-opacity, 1))}.bg-slate-900\/60{background-color:rgb(15 23 42 / 0.6)}.bg-slate-900\/90{background-color:rgb(15 23 42 / 0.9)}.bg-slate-900\/95{background-color:rgb(15 23 42 / 0.95)}.bg-slate-950{--tw-bg-opacity:1;background-color:rgb(2 6 23 / var(--tw-bg-opacity, 1))}.bg-gradient-to-br{background-image:linear-gradient(to bottom right, var(--tw-gradient-stops))}.from-sky-400{--tw-gradient-from:#38bdf8 var(--tw-gradient-from-position);--tw-gradient-to:rgb(56 189 248 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.to-blue-700{--tw-gradient-to:#1d4ed8 var(--tw-gradient-to-position)}.p-3{padding:0.75rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.p-6{padding:1.5rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.px-7{padding-left:1.75rem;padding-right:1.75rem}.px-8{padding-left:2rem;padding-right:2rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-2\.5{padding-top:0.625rem;padding-bottom:0.625rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.py-4{padding-top:1rem;padding-bottom:1rem}.py-6{padding-top:1.5rem;padding-bottom:1.5rem}.pb-20{padding-bottom:5rem}.pb-3{padding-bottom:0.75rem}.pb-4{padding-bottom:1rem}.pb-5{padding-bottom:1.25rem}.pt-6{padding-top:1.5rem}.text-left{text-align:left}.text-center{text-align:center}.font-mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}.text-4xl{font-size:2.25rem;line-height:2.5rem}.text-\[19px\]{font-size:19px}.text-\[20px\]{font-size:20px}.text-\[22px\]{font-size:22px}.text-\[24px\]{font-size:24px}.text-\[26px\]{font-size:26px}.text-\[28px\]{font-size:28px}.text-\[30px\]{font-size:30px}.text-\[32px\]{font-size:32px}.text-\[34px\]{font-size:34px}.text-\[36px\]{font-size:36px}.font-black{font-weight:900}.font-bold{font-weight:700}.font-normal{font-weight:400}.leading-snug{line-height:1.375}.leading-tight{line-height:1.25}.tracking-wide{letter-spacing:0.025em}.text-amber-200{--tw-text-opacity:1;color:rgb(253 230 138 / var(--tw-text-opacity, 1))}.text-amber-300{--tw-text-opacity:1;color:rgb(252 211 77 / var(--tw-text-opacity, 1))}.text-amber-400{--tw-text-opacity:1;color:rgb(251 191 36 / var(--tw-text-opacity, 1))}.text-emerald-200{--tw-text-opacity:1;color:rgb(167 243 208 / var(--tw-text-opacity, 1))}.text-emerald-300{--tw-text-opacity:1;color:rgb(110 231 183 / var(--tw-text-opacity, 1))}.text-rose-300{--tw-text-opacity:1;color:rgb(253 164 175 / var(--tw-text-opacity, 1))}.text-rose-400{--tw-text-opacity:1;color:rgb(251 113 133 / var(--tw-text-opacity, 1))}.text-sky-200{--tw-text-opacity:1;color:rgb(186 230 253 / var(--tw-text-opacity, 1))}.text-sky-300{--tw-text-opacity:1;color:rgb(125 211 252 / var(--tw-text-opacity, 1))}.text-sky-400{--tw-text-opacity:1;color:rgb(56 189 248 / var(--tw-text-opacity, 1))}.text-slate-100{--tw-text-opacity:1;color:rgb(241 245 249 / var(--tw-text-opacity, 1))}.text-slate-200{--tw-text-opacity:1;color:rgb(226 232 240 / var(--tw-text-opacity, 1))}.text-slate-300{--tw-text-opacity:1;color:rgb(203 213 225 / var(--tw-text-opacity, 1))}.text-slate-950{--tw-text-opacity:1;color:rgb(2 6 23 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.underline{-webkit-text-decoration-line:underline;text-decoration-line:underline}.decoration-4{text-decoration-thickness:4px}.accent-amber-400{accent-color:#fbbf24}.accent-sky-400{accent-color:#38bdf8}.shadow-2xl{--tw-shadow:0 25px 50px -12px rgb(0 0 0 / 0.25);--tw-shadow-colored:0 25px 50px -12px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-\[0_0_25px_rgba\(16\2c 185\2c 129\2c 0\.6\)\]{--tw-shadow:0 0 25px rgba(16,185,129,0.6);--tw-shadow-colored:0 0 25px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-inner{--tw-shadow:inset 0 2px 4px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:inset 0 2px 4px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-lg{--tw-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-xl{--tw-shadow:0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.backdrop-blur-md{--tw-backdrop-blur:blur(12px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition{transition-property:color, background-color, border-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.duration-300{transition-duration:300ms}.hover\:-translate-y-0\.5:hover{--tw-translate-y:-0.125rem;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.hover\:scale-105:hover{--tw-scale-x:1.05;--tw-scale-y:1.05;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.hover\:bg-amber-400:hover{--tw-bg-opacity:1;background-color:rgb(251 191 36 / var(--tw-bg-opacity, 1))}.hover\:bg-emerald-400:hover{--tw-bg-opacity:1;background-color:rgb(52 211 153 / var(--tw-bg-opacity, 1))}.hover\:bg-emerald-500:hover{--tw-bg-opacity:1;background-color:rgb(16 185 129 / var(--tw-bg-opacity, 1))}.hover\:bg-sky-400:hover{--tw-bg-opacity:1;background-color:rgb(56 189 248 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-600:hover{--tw-bg-opacity:1;background-color:rgb(71 85 105 / var(--tw-bg-opacity, 1))}.active\:bg-amber-600:active{--tw-bg-opacity:1;background-color:rgb(217 119 6 / var(--tw-bg-opacity, 1))}.active\:bg-emerald-600:active{--tw-bg-opacity:1;background-color:rgb(5 150 105 / var(--tw-bg-opacity, 1))}.active\:bg-emerald-700:active{--tw-bg-opacity:1;background-color:rgb(4 120 87 / var(--tw-bg-opacity, 1))}.active\:bg-sky-600:active{--tw-bg-opacity:1;background-color:rgb(2 132 199 / var(--tw-bg-opacity, 1))}.active\:bg-slate-800:active{--tw-bg-opacity:1;background-color:rgb(30 41 59 / var(--tw-bg-opacity, 1))}@media (min-width: 640px){.sm\:inline{display:inline}.sm\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.sm\:flex-row{flex-direction:row}.sm\:items-center{align-items:center}.sm\:p-4{padding:1rem}.sm\:p-8{padding:2rem}.sm\:px-8{padding-left:2rem;padding-right:2rem}.sm\:text-\[22px\]{font-size:22px}.sm\:text-\[24px\]{font-size:24px}.sm\:text-\[27px\]{font-size:27px}.sm\:text-\[28px\]{font-size:28px}.sm\:text-\[32px\]{font-size:32px}.sm\:text-\[36px\]{font-size:36px}.sm\:text-\[38px\]{font-size:38px}.sm\:text-\[42px\]{font-size:42px}}@media (min-width: 1024px){.lg\:flex-row{flex-direction:row}.lg\:items-center{align-items:center}}@media (min-width: 1280px){.xl\:col-span-6{grid-column:span 6 / span 6}.xl\:grid-cols-12{grid-template-columns:repeat(12, minmax(0, 1fr))}.xl\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.xl\:flex-row{flex-direction:row}.xl\:items-center{align-items:center}.xl\:self-auto{align-self:auto}}</style></head>
+<body class="min-h-screen pb-20">
+
+    <!-- 頂部導覽列與下載完整 HTML 按鈕 -->
+    <header class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b-4 border-slate-700 px-4 sm:px-8 py-4 shadow-2xl">
+        <div class="max-w-[1680px] mx-auto flex flex-col lg:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-sky-400 to-blue-700 flex items-center justify-center shadow-lg border-2 border-sky-200 shrink-0">
+                    <!-- 肺部向量圖示 -->
+                    <svg class="w-10 h-10 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v9m0 0l-3.5 3.5M12 12l3.5 3.5M7 8.5C4.5 9.5 3 12.5 3 16c0 2.5 1.8 4.5 4.2 4.5 1.8 0 3.3-1.2 3.8-2.8M17 8.5c2.5 1 4 4 4 7.5 0 2.5-1.8 4.5-4.2 4.5-1.8 0-3.3-1.2-3.8-2.8"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-[30px] sm:text-[38px] font-black tracking-wide text-white leading-tight">
+                        人體肺部呼吸實驗與波以耳定律 <span class="text-sky-400">(Boyle's Law)</span>
+                    </h1>
+                    <p class="text-[22px] text-slate-200 font-bold">
+                        定溫下密閉容器：<span class="text-amber-300">壓力 P × 體積 V = 定值 (P₁V₁ = P₂V₂)</span> 互動視覺化模型
+                    </p>
+                </div>
+            </div>
+
+            <!-- 下載完整 HTML 檔案按鈕 -->
+            <div class="flex items-center gap-3 shrink-0">
+                <button id="downloadHtmlBtn" onclick="downloadCompleteHTML()" class="flex items-center gap-3 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-black text-[24px] px-7 py-4 rounded-2xl border-4 border-emerald-300 shadow-[0_0_25px_rgba(16,185,129,0.6)] transition-all transform hover:scale-105 cursor-pointer">
+                    <svg class="w-8 h-8 animate-bounce" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                    <span>下載完整 HTML 檔案 (離線版)</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 檔案下載成功提示橫幅 -->
+    <div id="downloadToast" class="hidden fixed bottom-6 right-6 z-50 bg-emerald-950 border-4 border-emerald-400 text-white px-8 py-6 rounded-2xl shadow-2xl flex items-center gap-4 text-[24px] font-bold">
+        <span class="text-4xl">✅</span>
+        <div>
+            <div>已開始下載 <code class="text-emerald-300 font-mono">lung_boyle_law_experiment.html</code>！</div>
+            <div class="text-[20px] text-emerald-200 font-normal mt-1">此檔案包含完整 SVG 圖形與互動程式，直接點兩下即可在瀏覽器離線開啟。</div>
+        </div>
+    </div>
+
+    <!-- 主內容區 -->
+    <main class="max-w-[1680px] mx-auto px-4 sm:px-8 pt-6 space-y-8">
+
+        <!-- 第一列：核心即時因果推導橫幅 (超大字體) -->
+        <section id="liveStatusBanner" class="edu-card p-6 border-4 border-sky-400 bg-slate-900/95 transition-all duration-300">
+            <div class="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4">
+                <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+                    <span id="phaseBadge" class="px-6 py-2.5 rounded-2xl text-[28px] sm:text-[32px] font-black bg-sky-400 text-slate-950 shadow-lg shrink-0 text-center">⬇️ 吸氣狀態 (Inhale)</span>
+                    <div id="phaseCausalityText" class="text-[24px] sm:text-[27px] font-black text-white leading-snug">橫膈膜<span class="text-sky-300 underline decoration-4">往下拉 (收縮)</span> ➔ 胸腔體積 <span class="text-sky-300">V 變大 ↑</span> ➔ 根據波以耳定律，壓力 <span class="text-emerald-300">P 變小 ↓ (&lt; 760 mmHg)</span> ➔ 外界空氣<span class="text-rose-300">流入肺部使氣球膨脹</span></div>
+                </div>
+                <div class="flex items-center gap-3 bg-slate-950 px-6 py-3 rounded-2xl border-2 border-amber-400/80 shrink-0 self-stretch xl:self-auto justify-center">
+                    <span class="text-[22px] text-slate-200 font-bold">標準大氣壓基準：</span>
+                    <span class="text-[28px] font-black text-amber-300 font-mono">760.0 mmHg</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 第二列：原生內嵌 SVG 雙模型視覺實驗區 (100% 保證立即可見) -->
+        <section class="edu-card p-6 space-y-6">
+            <!-- 視角切換與顯示控制列 -->
+            <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 border-b-2 border-slate-700 pb-5">
+                <div class="flex flex-wrap items-center gap-4">
+                    <h2 class="text-[28px] sm:text-[32px] font-black text-sky-400 flex items-center gap-2">
+                        <span>🔬</span> 雙模型同步對照實驗室
+                    </h2>
+                    <span class="bg-amber-400/20 border-2 border-amber-400 text-amber-200 px-4 py-1.5 rounded-xl text-[20px] sm:text-[22px] font-black">
+                        👆 可直接在圖上上下拖曳「橘黃色橡皮膜拉環」或「橫膈膜」！
+                    </span>
+                </div>
+
+                <!-- 顯示開關 -->
+                <div class="flex flex-wrap items-center gap-6 bg-slate-900 px-5 py-3 rounded-xl border-2 border-slate-700">
+                    <label class="flex items-center gap-3 cursor-pointer text-[22px] font-bold text-white">
+                        <input type="checkbox" id="toggleMolecules" checked="" onchange="toggleVisualOptions()" class="w-7 h-7 accent-amber-400 rounded cursor-pointer">
+                        <span>顯示氣體分子密度點 (黃點)</span>
+                    </label>
+                    <label class="flex items-center gap-3 cursor-pointer text-[22px] font-bold text-white">
+                        <input type="checkbox" id="toggleLabels" checked="" onchange="toggleVisualOptions()" class="w-7 h-7 accent-sky-400 rounded cursor-pointer">
+                        <span>顯示構造大字標籤</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 內嵌 SVG 雙模型並排網格 (左側：寶特瓶氣球模型 | 右側：人體胸腔橫膈膜模型) -->
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                
+                <!-- 左側圖形：寶特瓶氣球呼吸實驗模型 (Bell Jar / Bottle Model) -->
+                <div class="bg-slate-950 rounded-2xl border-4 border-sky-500/70 p-3 sm:p-4 flex flex-col justify-between shadow-inner">
+                    <div class="flex items-center justify-between bg-sky-950/90 border-2 border-sky-400 px-5 py-3 rounded-xl mb-3">
+                        <span class="text-[24px] sm:text-[28px] font-black text-white">
+                            🧪 實驗模型：寶特瓶與氣球 (鐘罩模型)
+                        </span>
+                        <span id="bottleStatusTag" class="px-4 py-1 rounded-lg bg-sky-400 text-slate-950 font-black text-[20px]">下拉橡皮膜 ➔ 氣球膨脹</span>
+                    </div>
+
+                    <!-- 原生 Inline SVG：固定 viewBox="0 0 800 540" 與明確高度，絕不空白 -->
+                    <div class="w-full overflow-hidden rounded-xl bg-[#070d19] border-2 border-slate-800">
+                        <svg id="bottleSvg" viewBox="0 0 800 540" width="100%" height="480" style="min-height: 460px; width: 100%; display: block;" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <!-- 寶特瓶內部漸層 -->
+                                <linearGradient id="bottleCavityGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop id="bottleGradStop1" offset="0%" stop-color="#0ea5e9" stop-opacity="0.18"></stop>
+                                    <stop id="bottleGradStop2" offset="100%" stop-color="#10b981" stop-opacity="0.28"></stop>
+                                </linearGradient>
+                                <!-- 氣球立體放射漸層 -->
+                                <radialGradient id="balloonRedGrad" cx="35%" cy="30%" r="65%">
+                                    <stop offset="0%" stop-color="#fecdd3"></stop>
+                                    <stop offset="45%" stop-color="#f43f5e"></stop>
+                                    <stop offset="100%" stop-color="#9f1239"></stop>
+                                </radialGradient>
+                                <!-- 橡皮膜漸層 -->
+                                <linearGradient id="rubberGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stop-color="#f59e0b"></stop>
+                                    <stop offset="50%" stop-color="#fde047"></stop>
+                                    <stop offset="100%" stop-color="#f59e0b"></stop>
+                                </linearGradient>
+                            </defs>
+
+                            <!-- 背景網格線 (輔助視覺觀察體積高度變化) -->
+                            <g stroke="#1e293b" stroke-width="1.5" stroke-dasharray="6,6">
+                                <line x1="60" y1="160" x2="740" y2="160"></line>
+                                <line x1="60" y1="260" x2="740" y2="260"></line>
+                                <line x1="60" y1="360" x2="740" y2="360"></line>
+                                <line x1="60" y1="420" x2="740" y2="420" stroke="#475569" stroke-width="2"></line>
+                            </g>
+                            <text x="75" y="412" fill="#94a3b8" font-size="18" font-weight="bold">基準底線 (平衡位)</text>
+
+                            <!-- 1. 寶特瓶密閉腔室填充背景 (隨橡皮膜動態改變底部曲線) -->
+                            <path id="svgBottleCavity" d="M 355 95 L 445 95 Q 570 115 570 185 L 570 415 Q 400 455.8 230 415 L 230 185 Q 230 115 355 95 Z" fill="url(#bottleCavityGrad)"></path>
+
+                            <!-- 2. 瓶內密閉空間氣體分子群 (動態呈現體積變大時稀疏、體積變小時密集) -->
+                            <g id="svgBottleMolecules"><circle cx="349.3" cy="206.5" r="5.5" fill="#fde047" stroke="#0f172a" stroke-width="1.5"></circle><circle cx="460.8" cy="329.2" r="5.5" fill="#fde047" stroke="#0f172a" stroke-width="1.5"></circle><circle cx="325.6" cy="229.5" r="5.5" fill="#fde047" stroke="#0f172a" stroke-width="1.5"></circle><circle cx="498.2" cy="357.8" r="5.5" fill="#fde047" stroke="#0f172a" stroke-width="1.5"></circle><circle cx="294.1" cy="264.7" r="5.5" fill="#fde047" stroke="#0f172a" stroke-width="1.5"></circle><circle cx="523.4" cy="395.5" r="5.5" fill="#fde047" stroke="#0f172a" stroke-width="1.5"></circle><circle cx="255.2" cy="299.0" r="5.5" fill="#fde047" stroke="#0f172a" stroke-width="1.5"></circle><circle cx="441.8" cy="423.1" r="5.5" fill="#fde047" stroke="#0f172a" stroke-width="1.5"></circle><circle cx="337.2" cy="321.6" r="5.5" fill="#fde047" stroke="#0f172a" stroke-width="1.5"></circle><circle cx="480.8" cy="222.1" r="5.5" fill="#fde047" stroke="#0f172a" stroke-width="1.5"></circle><circle cx="311.8" cy="350.4" r="5.5" fill="#fde047" stroke="#0f172a" stroke-width="1.5"></circle><circle cx="511.9" cy="257.3" r="5.5" fill="#fde047" stroke="#0f172a" stroke-width="1.5"></circle><circle cx="274.1" cy="388.1" r="5.5" fill="#fde047" stroke="#0f172a" stroke-width="1.5"></circle><circle cx="535.7" cy="291.5" r="5.5" fill="#fde047" stroke="#0f172a" stroke-width="1.5"></circle><circle cx="349.4" cy="415.6" r="5.5" fill="#fde047" stroke="#0f172a" stroke-width="1.5"></circle><circle cx="461.0" cy="314.1" r="5.5" fill="#fde047" stroke="#0f172a" stroke-width="1.5"></circle><circle cx="325.8" cy="214.6" r="5.5" fill="#fde047" stroke="#0f172a" stroke-width="1.5"></circle><circle cx="498.2" cy="343.0" r="5.5" fill="#fde047" stroke="#0f172a" stroke-width="1.5"></circle><circle cx="294.0" cy="249.9" r="5.5" fill="#fde047" stroke="#0f172a" stroke-width="1.5"></circle><circle cx="523.2" cy="380.7" r="5.5" fill="#fde047" stroke="#0f172a" stroke-width="1.5"></circle><circle cx="255.1" cy="284.0" r="5.5" fill="#fde047" stroke="#0f172a" stroke-width="1.5"></circle><circle cx="441.8" cy="408.0" r="5.5" fill="#fde047" stroke="#0f172a" stroke-width="1.5"></circle><circle cx="337.3" cy="306.6" r="5.5" fill="#fde047" stroke="#0f172a" stroke-width="1.5"></circle><circle cx="480.9" cy="207.1" r="5.5" fill="#fde047" stroke="#0f172a" stroke-width="1.5"></circle><circle cx="311.8" cy="335.6" r="5.5" fill="#fde047" stroke="#0f172a" stroke-width="1.5"></circle><circle cx="511.7" cy="242.5" r="5.5" fill="#fde047" stroke="#0f172a" stroke-width="1.5"></circle><circle cx="274.0" cy="373.2" r="5.5" fill="#fde047" stroke="#0f172a" stroke-width="1.5"></circle><circle cx="535.6" cy="276.5" r="5.5" fill="#fde047" stroke="#0f172a" stroke-width="1.5"></circle><circle cx="349.5" cy="400.5" r="5.5" fill="#fde047" stroke="#0f172a" stroke-width="1.5"></circle><circle cx="461.2" cy="299.0" r="5.5" fill="#fde047" stroke="#0f172a" stroke-width="1.5"></circle><circle cx="325.9" cy="199.6" r="5.5" fill="#fde047" stroke="#0f172a" stroke-width="1.5"></circle><circle cx="498.2" cy="328.2" r="5.5" fill="#fde047" stroke="#0f172a" stroke-width="1.5"></circle><circle cx="293.9" cy="235.2" r="5.5" fill="#fde047" stroke="#0f172a" stroke-width="1.5"></circle><circle cx="523.0" cy="365.8" r="5.5" fill="#fde047" stroke="#0f172a" stroke-width="1.5"></circle><circle cx="255.1" cy="269.0" r="5.5" fill="#fde047" stroke="#0f172a" stroke-width="1.5"></circle><circle cx="441.9" cy="392.9" r="5.5" fill="#fde047" stroke="#0f172a" stroke-width="1.5"></circle><circle cx="337.5" cy="291.5" r="5.5" fill="#fde047" stroke="#0f172a" stroke-width="1.5"></circle><circle cx="481.0" cy="416.3" r="5.5" fill="#fde047" stroke="#0f172a" stroke-width="1.5"></circle></g>
+
+                            <!-- 3. 頂部軟木塞 / 橡皮塞 -->
+                            <rect x="346" y="70" width="108" height="36" rx="8" fill="#64748b" stroke="#e2e8f0" stroke-width="4"></rect>
+
+                            <!-- 4. Y型玻璃管 (代表氣管與支氣管) -->
+                            <!-- 外管壁 -->
+                            <path d="M 400 22 L 400 205 M 400 205 L 330 255 M 400 205 L 470 255" stroke="#e2e8f0" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" fill="none"></path>
+                            <!-- 內管通道 -->
+                            <path d="M 400 20 L 400 205 M 400 205 L 330 255 M 400 205 L 470 255" stroke="#0f172a" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" fill="none"></path>
+
+                            <!-- 5. 管內動態氣流粒子 -->
+                            <g id="svgBottleAirParticles"><circle cx="356.9" cy="233.1" r="4.5" fill="#38bdf8"></circle><circle cx="443.1" cy="233.1" r="4.5" fill="#38bdf8"></circle><circle cx="400" cy="29.9" r="5" fill="#38bdf8"></circle><circle cx="400" cy="62.9" r="5" fill="#38bdf8"></circle><circle cx="400" cy="96.0" r="5" fill="#38bdf8"></circle><circle cx="400" cy="129.1" r="5" fill="#38bdf8"></circle><circle cx="400" cy="162.2" r="5" fill="#38bdf8"></circle><circle cx="400" cy="195.2" r="5" fill="#38bdf8"></circle><circle cx="380.1" cy="215.3" r="4.5" fill="#38bdf8"></circle><circle cx="419.9" cy="215.3" r="4.5" fill="#38bdf8"></circle></g>
+
+                            <!-- 6. 左右兩顆小氣球 (代表左右肺臟，隨呼吸動態縮放) -->
+                            <g id="svgLeftBalloonGroup" transform="translate(322, 255)">
+                                <ellipse id="svgLeftBalloon" cx="0" cy="69.5" rx="53.6" ry="73.2" fill="url(#balloonRedGrad)" stroke="#ffe4e6" stroke-width="4"></ellipse>
+                                <text x="0" y="75" fill="#ffffff" font-size="22" font-weight="900" text-anchor="middle">氣球(肺)</text>
+                            </g>
+                            <g id="svgRightBalloonGroup" transform="translate(478, 255)">
+                                <ellipse id="svgRightBalloon" cx="0" cy="69.5" rx="53.6" ry="73.2" fill="url(#balloonRedGrad)" stroke="#ffe4e6" stroke-width="4"></ellipse>
+                                <text x="0" y="75" fill="#ffffff" font-size="22" font-weight="900" text-anchor="middle">氣球(肺)</text>
+                            </g>
+
+                            <!-- 7. 硬質透明寶特瓶高對比粗外框 (代表胸廓) -->
+                            <path d="M 355 95 Q 230 115 230 185 L 230 415 M 445 95 Q 570 115 570 185 L 570 415" stroke="#38bdf8" stroke-width="7" stroke-linecap="round" fill="none"></path>
+                            <!-- 寶特瓶玻璃反光線條 -->
+                            <path d="M 248 195 L 248 390" stroke="#bae6fd" stroke-width="4" stroke-linecap="round" stroke-dasharray="40,18" opacity="0.6"></path>
+
+                            <!-- 8. 瓶底橘黃色橡皮膜與可拖曳拉環 (代表橫膈膜) -->
+                            <g id="svgBottleMembraneDragGroup" class="svg-draggable">
+                                <path id="svgBottleMembrane" d="M 226 415 Q 400 455.8 574 415" stroke="url(#rubberGrad)" stroke-width="14" stroke-linecap="round" fill="none"></path>
+                                <!-- 拉環連接柄与大拉環 -->
+                                <g id="svgBottlePullTab" transform="translate(400, 448.6)">
+                                    <rect x="-95" y="0" width="190" height="46" rx="14" fill="#f59e0b" stroke="#ffffff" stroke-width="4"></rect>
+                                    <text x="0" y="31" fill="#0f172a" font-size="22" font-weight="900" text-anchor="middle">⇅ 上下拖曳橡皮膜</text>
+                                </g>
+                            </g>
+
+                            <!-- 9. 管口頂端進出氣流大箭頭與標籤 -->
+                            <g id="svgBottleTopArrow">
+                                <path id="bottleArrowShape" d="M 365 12 L 379 12 L 379 38 L 395 38 L 372 64 L 349 38 L 365 38 Z" transform="translate(28, -8)" fill="#38bdf8" stroke="#ffffff" stroke-width="2.5"></path>
+                                <rect x="445" y="10" width="215" height="42" rx="10" fill="#0284c7" stroke="#7dd3fc" stroke-width="2.5"></rect>
+                                <text id="bottleAirflowText" x="552" y="38" fill="#ffffff" font-size="22" font-weight="900" text-anchor="middle">空氣流入 (吸氣) ⬇️</text>
+                            </g>
+
+                            <!-- 10. 圖內超大字體構造標註群 -->
+                            <g class="svg-label-group">
+                                <!-- Y型管 (氣管) 標註 -->
+                                <g>
+                                    <line x1="392" y1="145" x2="215" y2="125" stroke="#fde047" stroke-width="3.5"></line>
+                                    <circle cx="392" cy="145" r="6" fill="#fde047"></circle>
+                                    <rect x="20" y="98" width="195" height="46" rx="10" fill="#1e293b" stroke="#fde047" stroke-width="3"></rect>
+                                    <text x="117" y="129" fill="#fde047" font-size="22" font-weight="900" text-anchor="middle">Y型管 (氣管)</text>
+                                </g>
+
+                                <!-- 寶特瓶 (胸腔) 標註 -->
+                                <g>
+                                    <line x1="230" y1="265" x2="195" y2="265" stroke="#38bdf8" stroke-width="3.5"></line>
+                                    <circle cx="230" cy="265" r="6" fill="#38bdf8"></circle>
+                                    <rect x="15" y="238" width="180" height="46" rx="10" fill="#1e293b" stroke="#38bdf8" stroke-width="3"></rect>
+                                    <text x="105" y="269" fill="#38bdf8" font-size="22" font-weight="900" text-anchor="middle">寶特瓶 (胸腔)</text>
+                                </g>
+
+                                <!-- 小氣球 (肺臟) 標註 -->
+                                <g>
+                                    <line id="bottleBalloonLabelLine" x1="520" y1="295" x2="600" y2="245" stroke="#fb7185" stroke-width="3.5"></line>
+                                    <circle id="bottleBalloonLabelDot" cx="520" cy="295" r="6" fill="#fb7185"></circle>
+                                    <rect x="600" y="218" width="185" height="46" rx="10" fill="#1e293b" stroke="#fb7185" stroke-width="3"></rect>
+                                    <text x="692" y="249" fill="#fda4af" font-size="22" font-weight="900" text-anchor="middle">小氣球 (肺臟)</text>
+                                </g>
+
+                                <!-- 底部橡皮膜 (橫膈膜) 標註 -->
+                                <g>
+                                    <line id="bottleMembraneLabelLine" x1="540" y1="425" x2="585" y2="385" stroke="#fbbf24" stroke-width="3.5"></line>
+                                    <circle id="bottleMembraneLabelDot" cx="540" cy="425" r="6" fill="#fbbf24"></circle>
+                                    <rect x="580" y="355" width="210" height="50" rx="10" fill="#1e293b" stroke="#fbbf24" stroke-width="3"></rect>
+                                    <text x="685" y="388" fill="#fde047" font-size="21" font-weight="900" text-anchor="middle">底部橡皮膜(橫膈)</text>
+                                </g>
+                            </g>
+
+                            <!-- 即時瓶內壓力與體積徽章 -->
+                            <g transform="translate(20, 465)">
+                                <rect x="0" y="0" width="265" height="52" rx="12" fill="#0f172a" stroke="#64748b" stroke-width="3"></rect>
+                                <text id="svgBottleLiveReadout" x="132" y="34" fill="#34d399" font-size="22" font-weight="900" font-family="monospace" text-anchor="middle">P=679 mmHg | V=3.36 L</text>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 右側圖形：人體胸腔橫膈膜解剖模型 (Human Thoracic Cavity Model) -->
+                <div class="bg-slate-950 rounded-2xl border-4 border-rose-500/70 p-3 sm:p-4 flex flex-col justify-between shadow-inner">
+                    <div class="flex items-center justify-between bg-rose-950/90 border-2 border-rose-400 px-5 py-3 rounded-xl mb-3">
+                        <span class="text-[24px] sm:text-[28px] font-black text-white">
+                            🫁 人體構造：胸腔、肺臟與橫膈膜
+                        </span>
+                        <span id="anatomyStatusTag" class="px-4 py-1 rounded-lg bg-sky-400 text-slate-950 font-black text-[20px]">橫膈收縮下降 ➔ 肺臟擴張</span>
+                    </div>
+
+                    <!-- 原生 Inline SVG：固定 viewBox="0 0 800 540" 與明確高度，絕不空白 -->
+                    <div class="w-full overflow-hidden rounded-xl bg-[#070d19] border-2 border-slate-800">
+                        <svg id="anatomySvg" viewBox="0 0 800 540" width="100%" height="480" style="min-height: 460px; width: 100%; display: block;" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <!-- 胸膜腔背景漸層 -->
+                                <linearGradient id="thoraxCavityGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.15"></stop>
+                                    <stop offset="100%" stop-color="#f43f5e" stop-opacity="0.25"></stop>
+                                </linearGradient>
+                                <!-- 肺臟組織漸層 -->
+                                <radialGradient id="lungTissueGrad" cx="40%" cy="35%" r="65%">
+                                    <stop id="lungGradStop1" offset="0%" stop-color="#fecdd3"></stop>
+                                    <stop id="lungGradStop2" offset="55%" stop-color="#fb7185"></stop>
+                                    <stop id="lungGradStop3" offset="100%" stop-color="#be123c"></stop>
+                                </radialGradient>
+                            </defs>
+
+                            <!-- 背景參考格線 -->
+                            <g stroke="#1e293b" stroke-width="1.5" stroke-dasharray="6,6">
+                                <line x1="60" y1="160" x2="740" y2="160"></line>
+                                <line x1="60" y1="260" x2="740" y2="260"></line>
+                                <line x1="60" y1="360" x2="740" y2="360"></line>
+                                <line x1="60" y1="420" x2="740" y2="420" stroke="#475569" stroke-width="2"></line>
+                            </g>
+
+                            <!-- 1. 人體密閉胸廓外框與胸膜腔 (隨呼吸外擴/內縮與橫膈膜連動) -->
+                            <path id="svgThoraxCavity" d="M 360 110 Q 191.8 135 191.8 320 L 212.08 415 Q 400 440 587.92 415 L 608.2 320 Q 608.2 135 440 110 Z" fill="url(#thoraxCavityGrad)" stroke="#94a3b8" stroke-width="5"></path>
+
+                            <!-- 2. 胸膜腔內氣體壓力分子點 -->
+                            <g id="svgAnatomyMolecules"><circle cx="343.8" cy="205.4" r="5" fill="#fde047" opacity="0.85"></circle><circle cx="468.2" cy="323.6" r="5" fill="#fde047" opacity="0.85"></circle><circle cx="316.4" cy="227.4" r="5" fill="#fde047" opacity="0.85"></circle><circle cx="509.3" cy="351.2" r="5" fill="#fde047" opacity="0.85"></circle><circle cx="281.2" cy="261.5" r="5" fill="#fde047" opacity="0.85"></circle><circle cx="538.2" cy="387.8" r="5" fill="#fde047" opacity="0.85"></circle><circle cx="238.5" cy="294.8" r="5" fill="#fde047" opacity="0.85"></circle><circle cx="447.2" cy="414.3" r="5" fill="#fde047" opacity="0.85"></circle><circle cx="329.8" cy="316.3" r="5" fill="#fde047" opacity="0.85"></circle><circle cx="490.0" cy="220.2" r="5" fill="#fde047" opacity="0.85"></circle><circle cx="300.7" cy="344.0" r="5" fill="#fde047" opacity="0.85"></circle><circle cx="524.8" cy="254.4" r="5" fill="#fde047" opacity="0.85"></circle><circle cx="259.3" cy="380.6" r="5" fill="#fde047" opacity="0.85"></circle><circle cx="552.3" cy="287.6" r="5" fill="#fde047" opacity="0.85"></circle><circle cx="343.9" cy="407.1" r="5" fill="#fde047" opacity="0.85"></circle><circle cx="468.3" cy="309.0" r="5" fill="#fde047" opacity="0.85"></circle><circle cx="316.5" cy="213.0" r="5" fill="#fde047" opacity="0.85"></circle><circle cx="509.3" cy="336.9" r="5" fill="#fde047" opacity="0.85"></circle><circle cx="281.1" cy="247.3" r="5" fill="#fde047" opacity="0.85"></circle><circle cx="538.0" cy="373.5" r="5" fill="#fde047" opacity="0.85"></circle><circle cx="238.5" cy="280.3" r="5" fill="#fde047" opacity="0.85"></circle><circle cx="447.3" cy="399.8" r="5" fill="#fde047" opacity="0.85"></circle><circle cx="330.0" cy="301.8" r="5" fill="#fde047" opacity="0.85"></circle><circle cx="490.1" cy="205.8" r="5" fill="#fde047" opacity="0.85"></circle><circle cx="300.7" cy="329.7" r="5" fill="#fde047" opacity="0.85"></circle><circle cx="524.7" cy="240.2" r="5" fill="#fde047" opacity="0.85"></circle><circle cx="259.2" cy="366.3" r="5" fill="#fde047" opacity="0.85"></circle><circle cx="552.3" cy="273.1" r="5" fill="#fde047" opacity="0.85"></circle><circle cx="344.0" cy="392.5" r="5" fill="#fde047" opacity="0.85"></circle><circle cx="468.5" cy="294.5" r="5" fill="#fde047" opacity="0.85"></circle><circle cx="316.7" cy="198.6" r="5" fill="#fde047" opacity="0.85"></circle><circle cx="509.3" cy="322.6" r="5" fill="#fde047" opacity="0.85"></circle><circle cx="280.9" cy="233.0" r="5" fill="#fde047" opacity="0.85"></circle><circle cx="537.8" cy="359.2" r="5" fill="#fde047" opacity="0.85"></circle><circle cx="238.4" cy="265.9" r="5" fill="#fde047" opacity="0.85"></circle><circle cx="447.4" cy="385.2" r="5" fill="#fde047" opacity="0.85"></circle><circle cx="330.1" cy="287.2" r="5" fill="#fde047" opacity="0.85"></circle><circle cx="490.3" cy="407.5" r="5" fill="#fde047" opacity="0.85"></circle></g>
+
+                            <!-- 3. 左右肺臟葉片 (隨呼吸動態縮放並改變飽和度) -->
+                            <!-- 圖左：右肺 (三葉) -->
+                            <g id="svgRightLungGroup" transform="translate(390, 245) scale(1.108, 1.132)">
+                                <path id="svgRightLungPath" d="M -18 -110 Q -95 -120 -130 -40 Q -155 45 -135 125 Q -65 140 -18 110 Z" fill="url(#lungTissueGrad)" stroke="#ffe4e6" stroke-width="4"></path>
+                                <!-- 肺葉裂紋 -->
+                                <path d="M -20 -15 Q -75 5 -138 25 M -20 45 Q -75 65 -135 85" stroke="#881337" stroke-width="3.5" fill="none" opacity="0.65"></path>
+                                <text x="-78" y="25" fill="#ffffff" font-size="24" font-weight="900" text-anchor="middle">右肺</text>
+                            </g>
+                            <!-- 圖右：左肺 (兩葉) -->
+                            <g id="svgLeftLungGroup" transform="translate(410, 245) scale(1.108, 1.132)">
+                                <path id="svgLeftLungPath" d="M 18 -110 Q 95 -120 130 -40 Q 155 45 135 125 Q 65 140 18 110 Z" fill="url(#lungTissueGrad)" stroke="#ffe4e6" stroke-width="4"></path>
+                                <!-- 肺葉裂紋 -->
+                                <path d="M 20 10 Q 75 35 138 60" stroke="#881337" stroke-width="3.5" fill="none" opacity="0.65"></path>
+                                <text x="78" y="25" fill="#ffffff" font-size="24" font-weight="900" text-anchor="middle">左肺</text>
+                            </g>
+
+                            <!-- 4. 人體氣管 (含環狀軟骨紋理) 與支氣管樹 -->
+                            <path d="M 400 22 L 400 195 M 400 195 L 335 245 M 400 195 L 465 245" stroke="#bae6fd" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" fill="none"></path>
+                            <path d="M 400 22 L 400 195 M 400 195 L 335 245 M 400 195 L 465 245" stroke="#0284c7" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" fill="none"></path>
+                            <!-- 氣管軟骨環 -->
+                            <g stroke="#e0f2fe" stroke-width="4" stroke-linecap="round">
+                                <line x1="390" y1="55" x2="410" y2="55"></line>
+                                <line x1="390" y1="80" x2="410" y2="80"></line>
+                                <line x1="390" y1="105" x2="410" y2="105"></line>
+                                <line x1="390" y1="130" x2="410" y2="130"></line>
+                                <line x1="390" y1="155" x2="410" y2="155"></line>
+                            </g>
+
+                            <!-- 5. 氣管內氣流動態粒子 -->
+                            <g id="svgAnatomyAirParticles"><circle cx="356.9" cy="233.1" r="4.5" fill="#38bdf8"></circle><circle cx="443.1" cy="233.1" r="4.5" fill="#38bdf8"></circle><circle cx="400" cy="29.9" r="5" fill="#38bdf8"></circle><circle cx="400" cy="62.9" r="5" fill="#38bdf8"></circle><circle cx="400" cy="96.0" r="5" fill="#38bdf8"></circle><circle cx="400" cy="129.1" r="5" fill="#38bdf8"></circle><circle cx="400" cy="162.2" r="5" fill="#38bdf8"></circle><circle cx="400" cy="195.2" r="5" fill="#38bdf8"></circle><circle cx="380.1" cy="215.3" r="4.5" fill="#38bdf8"></circle><circle cx="419.9" cy="215.3" r="4.5" fill="#38bdf8"></circle></g>
+
+                            <!-- 6. 胸廓肋骨護籠 (隨吸氣上舉外擴、呼氣下降內縮) -->
+                            <g id="svgRibCageGroup" stroke="#f8fafc" stroke-width="8" stroke-linecap="round" fill="none" opacity="0.65" transform="translate(400, 239) scale(1.054, 1) translate(-400, -245)">
+                                <!-- 左側肋骨 (圖左) -->
+                                <path d="M 375 160 Q 280 155 235 190"></path>
+                                <path d="M 375 215 Q 265 210 218 250"></path>
+                                <path d="M 375 270 Q 260 265 212 310"></path>
+                                <path d="M 375 325 Q 270 320 222 365"></path>
+                                <!-- 右側肋骨 (圖右) -->
+                                <path d="M 425 160 Q 520 155 565 190"></path>
+                                <path d="M 425 215 Q 535 210 582 250"></path>
+                                <path d="M 425 270 Q 540 265 588 310"></path>
+                                <path d="M 425 325 Q 530 320 578 365"></path>
+                                <!-- 中央胸骨 -->
+                                <line x1="400" y1="150" x2="400" y2="340" stroke="#cbd5e1" stroke-width="12" opacity="0.5"></line>
+                            </g>
+
+                            <!-- 7. 底部拱形橫膈膜肌肉與可拖曳把手 (吸氣往下壓平、呼氣往上高拱) -->
+                            <g id="svgAnatomyDiaphragmDragGroup" class="svg-draggable">
+                                <path id="svgAnatomyDiaphragm" d="M 208.08 415 Q 400 440 591.92 415" stroke="#f97316" stroke-width="18" stroke-linecap="round" fill="none"></path>
+                                <path id="svgAnatomyDiaphragmHighlight" d="M 208.08 415 Q 400 440 591.92 415" stroke="#ffedd5" stroke-width="4" stroke-linecap="round" fill="none"></path>
+                                <!-- 橫膈膜拖曳手把 -->
+                                <g id="svgAnatomyPullTab" transform="translate(400, 439.8)">
+                                    <rect x="-95" y="0" width="190" height="46" rx="14" fill="#ea580c" stroke="#ffffff" stroke-width="4"></rect>
+                                    <text x="0" y="31" fill="#ffffff" font-size="22" font-weight="900" text-anchor="middle">⇅ 上下拖曳橫膈膜</text>
+                                </g>
+                            </g>
+
+                            <!-- 8. 氣管頂端進出氣流大箭頭 -->
+                            <g id="svgAnatomyTopArrow">
+                                <rect x="445" y="10" width="215" height="42" rx="10" fill="#0284c7" stroke="#7dd3fc" stroke-width="2.5"></rect>
+                                <text id="anatomyAirflowText" x="552" y="38" fill="#ffffff" font-size="22" font-weight="900" text-anchor="middle">空氣流入肺臟 ⬇️</text>
+                            </g>
+
+                            <!-- 9. 圖內超大字體構造標註群 -->
+                            <g class="svg-label-group">
+                                <!-- 氣管標註 -->
+                                <g>
+                                    <line x1="390" y1="95" x2="205" y2="95" stroke="#fde047" stroke-width="3.5"></line>
+                                    <circle cx="390" cy="95" r="6" fill="#fde047"></circle>
+                                    <rect x="25" y="68" width="180" height="46" rx="10" fill="#1e293b" stroke="#fde047" stroke-width="3"></rect>
+                                    <text x="115" y="99" fill="#fde047" font-size="22" font-weight="900" text-anchor="middle">氣管与支氣管</text>
+                                </g>
+
+                                <!-- 肋骨與胸腔標註 -->
+                                <g>
+                                    <line x1="235" y1="245" x2="195" y2="245" stroke="#38bdf8" stroke-width="3.5"></line>
+                                    <circle cx="235" cy="245" r="6" fill="#38bdf8"></circle>
+                                    <rect x="15" y="218" width="180" height="46" rx="10" fill="#1e293b" stroke="#38bdf8" stroke-width="3"></rect>
+                                    <text x="105" y="249" fill="#38bdf8" font-size="22" font-weight="900" text-anchor="middle">肋骨與胸腔</text>
+                                </g>
+
+                                <!-- 左右肺臟標註 -->
+                                <g>
+                                    <line x1="525" y1="275" x2="600" y2="235" stroke="#fb7185" stroke-width="3.5"></line>
+                                    <circle cx="525" cy="275" r="6" fill="#fb7185"></circle>
+                                    <rect x="600" y="208" width="180" height="46" rx="10" fill="#1e293b" stroke="#fb7185" stroke-width="3"></rect>
+                                    <text x="690" y="239" fill="#fda4af" font-size="22" font-weight="900" text-anchor="middle">左右肺臟</text>
+                                </g>
+
+                                <!-- 橫膈膜標註 -->
+                                <g>
+                                    <line id="anatomyDiaphragmLabelLine" x1="540" y1="418" x2="595" y2="380" stroke="#fb923c" stroke-width="3.5"></line>
+                                    <circle id="anatomyDiaphragmLabelDot" cx="540" cy="418" r="6" fill="#fb923c"></circle>
+                                    <rect x="590" y="352" width="190" height="48" rx="10" fill="#1e293b" stroke="#fb923c" stroke-width="3"></rect>
+                                    <text x="685" y="384" fill="#fdba74" font-size="22" font-weight="900" text-anchor="middle">橫膈膜 (肌肉)</text>
+                                </g>
+                            </g>
+
+                            <!-- 即時肋骨與橫膈動作提示 -->
+                            <g transform="translate(20, 465)">
+                                <rect x="0" y="0" width="265" height="52" rx="12" fill="#0f172a" stroke="#64748b" stroke-width="3"></rect>
+                                <text id="svgAnatomyLiveReadout" x="132" y="34" fill="#38bdf8" font-size="21" font-weight="900" text-anchor="middle">肋骨上舉外擴・橫膈下降</text>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 第三列：左側超大互動控制台 + 右側波以耳定律數據面板與 SVG P-V 曲線圖 -->
+        <div class="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+
+            <!-- 左欄 (6/12)：橫膈膜超大滑桿與一鍵演示按鈕群 + 波以耳定律逐步推導 -->
+            <div class="xl:col-span-6 flex flex-col gap-6">
+                
+                <!-- 互動控制面板 -->
+                <div class="edu-card p-6 sm:p-8 space-y-6 border-4 border-sky-400/70">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b-2 border-slate-700 pb-4">
+                        <h2 class="text-[28px] sm:text-[32px] font-black text-white flex items-center gap-3">
+                            <span>🎛️</span> 呼吸運動與橫膈膜控制台
+                        </h2>
+                        <div class="bg-slate-950 px-5 py-2 rounded-xl border-2 border-sky-400 text-[24px] font-black">
+                            橫膈膜指標：<span id="sliderPercentDisplay" class="text-sky-300 font-mono">80% (吸氣下降)</span>
+                        </div>
+                    </div>
+
+                    <!-- 超大橫膈膜位置滑桿 (0% 呼氣 ~ 50% 平衡 ~ 100% 吸氣) -->
+                    <div class="bg-slate-950 p-6 rounded-2xl border-2 border-slate-700 space-y-5">
+                        <div class="flex justify-between items-center text-[22px] sm:text-[24px] font-black">
+                            <span class="text-amber-400 flex items-center gap-2">
+                                ⬆️ 0% 呼氣狀態 (橫膈上升)
+                            </span>
+                            <span class="text-slate-300 hidden sm:inline">50% 平衡</span>
+                            <span class="text-sky-400 flex items-center gap-2">
+                                ⬇️ 100% 吸氣狀態 (橫膈下降)
+                            </span>
+                        </div>
+
+                        <div class="py-2">
+                            <input type="range" id="breathSlider" min="0" max="100" value="80" step="1" class="mega-slider" oninput="onSliderInput(this.value)">
+                        </div>
+
+                        <div class="flex justify-between text-[20px] text-slate-300 font-bold">
+                            <span>胸腔體積最小 (2.40 L)</span>
+                            <span>基準體積 (3.00 L)</span>
+                            <span>胸腔體積最大 (3.60 L)</span>
+                        </div>
+                    </div>
+
+                    <!-- 四大一鍵演示按鈕 -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <button onclick="setPresetState(100)" class="flex items-center justify-center gap-3 bg-sky-500 hover:bg-sky-400 active:bg-sky-600 text-slate-950 font-black text-[24px] py-4 px-5 rounded-2xl border-4 border-sky-200 shadow-lg transition transform hover:-translate-y-0.5 cursor-pointer">
+                            <span>⬇️</span>
+                            <span>一鍵演示：吸氣狀態 (橫膈下降)</span>
+                        </button>
+
+                        <button onclick="setPresetState(0)" class="flex items-center justify-center gap-3 bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-black text-[24px] py-4 px-5 rounded-2xl border-4 border-amber-200 shadow-lg transition transform hover:-translate-y-0.5 cursor-pointer">
+                            <span>⬆️</span>
+                            <span>一鍵演示：呼氣狀態 (橫膈上升)</span>
+                        </button>
+
+                        <button onclick="setPresetState(50)" class="flex items-center justify-center gap-3 bg-slate-700 hover:bg-slate-600 active:bg-slate-800 text-white font-black text-[24px] py-4 px-5 rounded-2xl border-4 border-slate-400 shadow-lg transition transform hover:-translate-y-0.5 cursor-pointer">
+                            <span>⚖️</span>
+                            <span>一鍵演示：平衡狀態 (760 mmHg)</span>
+                        </button>
+
+                        <button id="autoCycleBtn" onclick="toggleAutoCycle()" class="flex items-center justify-center gap-3 bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-slate-950 font-black text-[24px] py-4 px-5 rounded-2xl border-4 border-emerald-200 shadow-lg transition transform hover:-translate-y-0.5 cursor-pointer">
+                            <span id="autoCycleIcon">▶️</span>
+                            <span id="autoCycleText">自動呼吸循環播放</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 波以耳定律逐步推導教學卡 -->
+                <div class="edu-card p-6 sm:p-8 space-y-5">
+                    <h3 class="text-[28px] sm:text-[32px] font-black text-amber-300 border-b-2 border-slate-700 pb-3">
+                        💡 波以耳定律 ($P_1 V_1 = P_2 V_2$) 呼吸推導說明
+                    </h3>
+                    <div class="space-y-4 text-[22px] sm:text-[24px] font-bold">
+                        <div class="bg-slate-900 p-4 rounded-xl border-l-8 border-amber-400">
+                            <div class="text-amber-300 font-black">1. 物理定律前提（定溫密閉容器）：</div>
+                            <p class="text-slate-100 mt-1">
+                                在體溫恆定下，密閉胸腔（或寶特瓶內部空間）內的氣體壓力 $P$ 與體積 $V$ 成反比，即 <span class="text-amber-300 font-mono font-black">P × V = 常數 k</span>。
+                            </p>
+                        </div>
+
+                        <div id="stepCardInhale" class="bg-sky-950/80 p-4 rounded-xl border-l-8 border-sky-400 transition-all">
+                            <div class="text-sky-300 font-black">2. 吸氣推導（當橫膈膜往下拉 ⬇️）：</div>
+                            <p class="text-white mt-1">
+                                密閉胸腔體積變大 ($V \uparrow$) ➔ 根據波以耳定律，胸腔與肺內氣壓變小 ($P \downarrow &lt; 760\text{ mmHg}$) ➔ 外界大氣壓較高，空氣自動流入肺部使氣球膨脹！
+                            </p>
+                        </div>
+
+                        <div id="stepCardExhale" class="bg-slate-900 p-4 rounded-xl border-l-8 border-amber-500 transition-all">
+                            <div class="text-amber-400 font-black">3. 呼氣推導（當橫膈膜往上推 ⬆️）：</div>
+                            <p class="text-slate-200 mt-1">
+                                密閉胸腔體積變小 ($V \downarrow$) ➔ 根據波以耳定律，胸腔與肺內氣壓變大 ($P \uparrow &gt; 760\text{ mmHg}$) ➔ 肺內壓力大於外界，氣體由氣管排出使氣球縮小！
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 右欄 (6/12)：超大數字儀表板 + 原生內嵌 SVG 波以耳定律 P-V 反比曲線圖 -->
+            <div class="xl:col-span-6 flex flex-col gap-6">
+                
+                <div class="edu-card p-6 sm:p-8 space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b-2 border-slate-700 pb-4">
+                        <h2 class="text-[28px] sm:text-[32px] font-black text-amber-300">
+                            📊 波以耳定律即時數據與 P-V 圖
+                        </h2>
+                        <span class="px-4 py-1.5 rounded-xl bg-amber-400/20 border-2 border-amber-400 text-amber-300 font-mono font-black text-[24px]">
+                            P × V = 2280
+                        </span>
+                    </div>
+
+                    <!-- 即時大數字四宮格 (32px - 42px 超大字體) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- 胸腔體積 V -->
+                        <div class="bg-slate-950 p-5 rounded-2xl border-3 border-sky-500/80">
+                            <div class="text-[22px] font-bold text-sky-300">密閉胸腔體積 (V)</div>
+                            <div id="bigValV" class="text-[36px] sm:text-[42px] font-black font-mono text-white leading-tight my-1">3.36 L</div>
+                            <div id="bigTagV" class="inline-block px-3 py-1 rounded-lg bg-sky-400 text-slate-950 font-black text-[20px]">體積膨脹變大 ↑</div>
+                        </div>
+
+                        <!-- 胸腔內氣壓 P -->
+                        <div class="bg-slate-950 p-5 rounded-2xl border-3 border-emerald-500/80">
+                            <div class="text-[22px] font-bold text-emerald-300">胸腔內氣體壓力 (P)</div>
+                            <div id="bigValP" class="text-[36px] sm:text-[42px] font-black font-mono text-white leading-tight my-1">678.6 mmHg</div>
+                            <div id="bigTagP" class="inline-block px-3 py-1 rounded-lg bg-emerald-400 text-slate-950 font-black text-[20px]">壓力下降變小 ↓ (&lt; 760)</div>
+                        </div>
+
+                        <!-- 與大氣壓差 ΔP -->
+                        <div class="bg-slate-950 p-5 rounded-2xl border-3 border-amber-500/80">
+                            <div class="text-[22px] font-bold text-amber-300">內外壓力差 (ΔP = P - 760)</div>
+                            <div id="bigValDeltaP" class="text-[34px] sm:text-[38px] font-black font-mono text-emerald-300 leading-tight my-1">-81.4 mmHg</div>
+                            <div id="bigTagDeltaP" class="text-[20px] font-bold text-slate-200">負壓狀態 (吸引外界空氣流入)</div>
+                        </div>
+
+                        <!-- 氣流方向與氣球狀態 -->
+                        <div class="bg-slate-950 p-5 rounded-2xl border-3 border-rose-500/80">
+                            <div class="text-[22px] font-bold text-rose-300">氣流方向與肺部變化</div>
+                            <div id="bigValFlow" class="text-[32px] sm:text-[36px] font-black text-sky-300 leading-tight my-1">空氣流入肺部 ⬇️</div>
+                            <div id="bigTagFlow" class="text-[20px] font-bold text-white">肺部 (小氣球) 充氣膨脹 🎈</div>
+                        </div>
+                    </div>
+
+                    <!-- 波以耳定律動態乘積算式條 -->
+                    <div class="bg-slate-900 p-4 rounded-2xl border-2 border-slate-600 text-center">
+                        <div class="text-[20px] text-slate-300 font-bold mb-1">波以耳定律即時驗證 ($P \times V = \text{常數 } k$)：</div>
+                        <div class="text-[26px] sm:text-[32px] font-black font-mono flex flex-wrap items-center justify-center gap-3">
+                            <span id="eqP" class="text-emerald-300">678.6 mmHg</span>
+                            <span class="text-white">×</span>
+                            <span id="eqV" class="text-sky-300">3.36 L</span>
+                            <span class="text-white">=</span>
+                            <span class="text-amber-300 bg-amber-950 px-4 py-1 rounded-xl border border-amber-400">2280 (恆定值)</span>
+                        </div>
+                    </div>
+
+                    <!-- 原生內嵌 SVG：波以耳定律 P-V 反比曲線圖 (viewBox="0 0 560 340") -->
+                    <div class="bg-slate-950 p-4 rounded-2xl border-2 border-slate-700 space-y-2">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <h3 class="text-[24px] font-black text-white">
+                                📈 波以耳定律 P-V 反比曲線圖 (即時動態座標)
+                            </h3>
+                            <span class="text-[20px] text-rose-400 font-black flex items-center gap-2">
+                                <span class="w-4 h-4 rounded-full bg-rose-500 inline-block animate-ping"></span>
+                                發光紅點 = 目前呼吸狀態
+                            </span>
+                        </div>
+
+                        <div class="w-full overflow-hidden rounded-xl bg-[#070d19] border border-slate-800">
+                            <svg id="pvCurveSvg" viewBox="0 0 560 340" width="100%" height="310" style="min-height: 290px; width: 100%; display: block;" xmlns="http://www.w3.org/2000/svg">
+                                <!-- 圖表背景區域 -->
+                                <rect x="85" y="25" width="440" height="245" fill="#0f172a" stroke="#334155" stroke-width="2"></rect>
+
+                                <!-- 垂直與水平格線 -->
+                                <g stroke="#1e293b" stroke-width="2">
+                                    <!-- V = 2.4, 2.7, 3.0, 3.3, 3.6 L 對應 X 座標 -->
+                                    <line x1="129" y1="25" x2="129" y2="270"></line>
+                                    <line x1="217" y1="25" x2="217" y2="270"></line>
+                                    <line x1="305" y1="25" x2="305" y2="270" stroke="#334155"></line>
+                                    <line x1="393" y1="25" x2="393" y2="270"></line>
+                                    <line x1="481" y1="25" x2="481" y2="270"></line>
+
+                                    <!-- P = 650, 760, 850, 950 mmHg 對應 Y 座標 -->
+                                    <line x1="85" y1="239" x2="525" y2="239"></line>
+                                    <line x1="85" y1="117" x2="525" y2="117"></line>
+                                    <line x1="85" y1="56" x2="525" y2="56"></line>
+                                </g>
+
+                                <!-- 760 mmHg 標準大氣壓基準虛線 -->
+                                <line x1="85" y1="172" x2="525" y2="172" stroke="#fbbf24" stroke-width="3" stroke-dasharray="8,6"></line>
+                                <text x="518" y="164" fill="#fbbf24" font-size="18" font-weight="900" text-anchor="end">標準大氣壓 760 mmHg</text>
+
+                                <!-- X 軸與 Y 軸主線 -->
+                                <line x1="85" y1="25" x2="85" y2="270" stroke="#94a3b8" stroke-width="4"></line>
+                                <line x1="85" y1="270" x2="525" y2="270" stroke="#94a3b8" stroke-width="4"></line>
+
+                                <!-- X 軸刻度標籤 (體積 V) -->
+                                <g fill="#e2e8f0" font-size="18" font-weight="bold" font-family="monospace" text-anchor="middle">
+                                    <text x="129" y="295">2.4L</text>
+                                    <text x="217" y="295">2.7L</text>
+                                    <text x="305" y="295" fill="#38bdf8">3.0L</text>
+                                    <text x="393" y="295">3.3L</text>
+                                    <text x="481" y="295">3.6L</text>
+                                </g>
+                                <text x="305" y="328" fill="#38bdf8" font-size="20" font-weight="900" text-anchor="middle">胸腔體積 V (公升 L) ➔</text>
+
+                                <!-- Y 軸刻度標籤 (壓力 P) -->
+                                <g fill="#e2e8f0" font-size="18" font-weight="bold" font-family="monospace" text-anchor="end">
+                                    <text x="77" y="62">950</text>
+                                    <text x="77" y="123">850</text>
+                                    <text x="77" y="178" fill="#fbbf24">760</text>
+                                    <text x="77" y="245">650</text>
+                                </g>
+                                <text x="24" y="150" fill="#34d399" font-size="20" font-weight="900" text-anchor="middle" transform="rotate(-90, 24, 150)">壓力 P (mmHg)</text>
+
+                                <!-- 波以耳定律平滑雙曲線 P * V = 2280 (V 從 2.35L 到 3.65L) -->
+                                <path id="svgPvCurvePath" d="M 123.1 56.1 L 131.9 63.2 L 140.7 70.2 L 149.5 76.9 L 158.3 83.6 L 167.1 90.0 L 175.9 96.3 L 184.7 102.5 L 193.5 108.5 L 202.3 114.4 L 211.1 120.2 L 219.9 125.8 L 228.7 131.3 L 237.5 136.7 L 246.3 142.0 L 255.1 147.1 L 263.9 152.2 L 272.7 157.1 L 281.5 161.9 L 290.3 166.7 L 299.1 171.3 L 307.9 175.9 L 316.7 180.4 L 325.5 184.7 L 334.3 189.0 L 343.1 193.3 L 351.9 197.4 L 360.7 201.4 L 369.5 205.4 L 378.3 209.3 L 387.1 213.2 L 395.9 216.9 L 404.7 220.6 L 413.5 224.3 L 422.3 227.8 L 431.1 231.3 L 439.9 234.8 L 448.7 238.2 L 457.5 241.5 L 466.3 244.8 L 475.1 248.0 L 483.9 251.1" fill="none" stroke="#38bdf8" stroke-width="6" stroke-linecap="round"></path>
+
+                                <!-- 目前狀態對應 X/Y 軸的動態十字虛線 -->
+                                <line id="svgPvCrossV" x1="410.6" y1="223.0" x2="410.6" y2="270" stroke="#fb7185" stroke-width="3" stroke-dasharray="6,6"></line>
+                                <line id="svgPvCrossP" x1="85" y1="223.0" x2="410.6" y2="223.0" stroke="#fb7185" stroke-width="3" stroke-dasharray="6,6"></line>
+
+                                <!-- 隨呼吸狀態即時移動的超大發光紅點與數值標籤 -->
+                                <g id="svgPvActivePointGroup" transform="translate(410.6, 223.0)">
+                                    <circle cx="0" cy="0" r="18" fill="#f43f5e" opacity="0.35"></circle>
+                                    <circle cx="0" cy="0" r="10" fill="#f43f5e" stroke="#ffffff" stroke-width="3.5"></circle>
+                                    <g id="svgPvPointLabelBox" transform="translate(-195, -46)">
+                                        <rect x="0" y="0" width="185" height="38" rx="8" fill="#0f172a" stroke="#fb7185" stroke-width="2.5"></rect>
+                                        <text id="svgPvPointText" x="92" y="26" fill="#ffffff" font-size="18" font-weight="900" font-family="monospace" text-anchor="middle">(3.36L, 679mmHg)</text>
+                                    </g>
+                                </g>
+                            </svg>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- 第四列：吸氣 vs 呼氣 完整對照表 (超大字體) -->
+        <section class="edu-card p-6 sm:p-8 space-y-6">
+            <h2 class="text-[30px] sm:text-[36px] font-black text-white border-b-2 border-slate-700 pb-4">
+                📖 「吸氣 vs 呼氣」實驗模型與人體呼吸機制完整對照表
+            </h2>
+
+            <div class="overflow-x-auto rounded-2xl border-2 border-slate-600 shadow-xl">
+                <table class="w-full text-left border-collapse comparison-table text-[22px] sm:text-[24px]">
+                    <thead>
+                        <tr class="bg-slate-800 text-white font-black text-[24px] sm:text-[28px]">
+                            <th class="w-1/4 bg-slate-900">比較階段与項目</th>
+                            <th class="w-3/8 bg-sky-950 text-sky-300 border-b-4 border-sky-400">
+                                ⬇️ 吸氣運動 (Inhalation)
+                            </th>
+                            <th class="w-3/8 bg-amber-950 text-amber-300 border-b-4 border-amber-400">
+                                ⬆️ 呼氣運動 (Exhalation)
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-700 font-bold">
+                        <tr class="bg-slate-900/90">
+                            <td class="text-white font-black bg-slate-950">1. 橫膈膜 (底部橡皮膜)</td>
+                            <td class="text-sky-200">橫膈膜收縮 <span class="text-sky-300 underline">下降</span>（橡皮膜往下拉 ⬇️）</td>
+                            <td class="text-amber-200">橫膈膜舒張 <span class="text-amber-300 underline">上升</span>（橡皮膜往上推 ⬆️）</td>
+                        </tr>
+                        <tr class="bg-slate-900/60">
+                            <td class="text-white font-black bg-slate-950">2. 肋骨與胸骨 (寶特瓶壁)</td>
+                            <td class="text-sky-200">肋間肌收縮，肋骨 <span class="text-sky-300">上舉外擴 ↗️</span></td>
+                            <td class="text-amber-200">肋間肌舒張，肋骨 <span class="text-amber-300">下降內縮 ↙️</span></td>
+                        </tr>
+                        <tr class="bg-slate-900/90">
+                            <td class="text-white font-black bg-slate-950">3. 密閉胸腔體積 (V)</td>
+                            <td class="text-sky-200"><span class="px-3 py-1 rounded-lg bg-sky-400 text-slate-950 font-black">胸腔體積 V 變大 ↑</span> (3.0L ➔ 3.6L)</td>
+                            <td class="text-amber-200"><span class="px-3 py-1 rounded-lg bg-amber-400 text-slate-950 font-black">胸腔體積 V 變小 ↓</span> (3.0L ➔ 2.4L)</td>
+                        </tr>
+                        <tr class="bg-slate-900/60">
+                            <td class="text-white font-black bg-slate-950">
+                                4. 胸腔與肺內壓力 (P)<br>
+                                <span class="text-[19px] text-amber-300">(波以耳定律 P × V = k)</span>
+                            </td>
+                            <td class="text-sky-200">
+                                <span class="px-3 py-1 rounded-lg bg-emerald-400 text-slate-950 font-black">壓力 P 變小 ↓ (&lt; 760 mmHg)</span>
+                            </td>
+                            <td class="text-amber-200">
+                                <span class="px-3 py-1 rounded-lg bg-rose-400 text-slate-950 font-black">壓力 P 變大 ↑ (&gt; 760 mmHg)</span>
+                            </td>
+                        </tr>
+                        <tr class="bg-slate-900/90">
+                            <td class="text-white font-black bg-slate-950">5. 氣流與肺部(氣球)變化</td>
+                            <td class="text-rose-300 text-[26px] font-black">外界空氣流入 ➔ 肺部(氣球)膨脹 🎈</td>
+                            <td class="text-amber-300 text-[26px] font-black">肺內空氣排出 ➔ 肺部(氣球)縮小 💨</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        /***********************************************************************
+         * 1. 核心物理與互動狀態定義
+         * sliderVal: 0 (最大呼氣/橫膈上升) ~ 50 (平衡點) ~ 100 (最大吸氣/橫膈下降)
+         ***********************************************************************/
+        const simState = {
+            sliderVal: 80,          // 初始預設為 80% 吸氣狀態，一打開就能看到明顯膨脹與氣流
+            targetSliderVal: 80,
+            isAutoPlaying: false,
+            isDraggingSvg: false,
+            autoAngle: 0.6,
+            airflowPhase: 0,
+            showMolecules: true,
+            showLabels: true,
+
+            // 波以耳定律常數設定：平衡點 (sliderVal=50) 時，V0 = 3.00 L, P0 = 760.0 mmHg
+            V0: 3.00,
+            P_atm: 760.0,
+            k: 2280.0               // P * V = 760 * 3.00 = 2280
+        };
+
+        // 預先生成氣體分子相對座標種子，用於在 SVG 密閉腔室內呈現分子密度變化
+        const moleculeSeeds = [];
+        for (let i = 0; i < 38; i++) {
+            // 使用均勻分散且避開中央氣球區的偽隨機分佈
+            const side = i % 2 === 0 ? -1 : 1;
+            const rx = side * (0.28 + (i % 7) * 0.095); // 分佈在腔室左右兩側與底部
+            const ry = 0.12 + ((i * 17) % 30) / 33;
+            moleculeSeeds.push({ rx, ry, phase: i * 0.9 });
+        }
+
+        /***********************************************************************
+         * 2. 初始化並精確繪製波以耳定律 P-V 雙曲線 SVG Path
+         ***********************************************************************/
+        function buildAccuratePvCurvePath() {
+            // X軸: V 從 2.25L 到 3.75L 映射至 SVG X [85, 525] (寬度 440)
+            // Y軸: P 從 600 到 1010 mmHg 映射至 SVG Y [270, 25] (高度 245)
+            const vToX = (v) => 85 + ((v - 2.25) / 1.50) * 440;
+            const pToY = (p) => 270 - ((p - 600) / 410) * 245;
+
+            let d = '';
+            for (let v = 2.38; v <= 3.62; v += 0.03) {
+                const p = simState.k / v;
+                const x = vToX(v).toFixed(1);
+                const y = pToY(p).toFixed(1);
+                d += (d === '' ? `M ${x} ${y}` : ` L ${x} ${y}`);
+            }
+            const pathEl = document.getElementById('svgPvCurvePath');
+            if (pathEl) pathEl.setAttribute('d', d);
+        }
+
+        /***********************************************************************
+         * 3. 根據目前橫膈膜位置更新兩個內嵌 SVG 模型與所有數據面板
+         ***********************************************************************/
+        function updateSimulationView() {
+            // 計算正規化位置 normPos: -1.0 (0% 最大呼氣) ~ 0.0 (50% 平衡) ~ +1.0 (100% 最大吸氣)
+            const normPos = (simState.sliderVal - 50) / 50;
+
+            // 波以耳定律物理計算
+            const currentV = simState.V0 + normPos * 0.60; // 2.40 L ~ 3.60 L
+            const currentP = simState.k / currentV;        // 950.0 mmHg ~ 633.3 mmHg
+            const deltaP = currentP - simState.P_atm;
+
+            // 1. 更新左側「寶特瓶氣球模型」SVG 幾何形狀
+            // 瓶底橡皮膜中心控制點 Y (平衡時 415，下拉吸氣時最高到 485，上推呼氣時到 350)
+            const bottleMembraneCtrlY = 415 + normPos * 68;
+            const bottleMembraneMidY = 415 + normPos * 36;
+
+            document.getElementById('svgBottleCavity').setAttribute(
+                'd',
+                `M 355 95 L 445 95 Q 570 115 570 185 L 570 415 Q 400 ${bottleMembraneCtrlY} 230 415 L 230 185 Q 230 115 355 95 Z`
+            );
+            document.getElementById('svgBottleMembrane').setAttribute(
+                'd',
+                `M 226 415 Q 400 ${bottleMembraneCtrlY} 574 415`
+            );
+            document.getElementById('svgBottlePullTab').setAttribute(
+                'transform',
+                `translate(400, ${bottleMembraneMidY + 12})`
+            );
+
+            // 小氣球隨吸氣膨脹、呼氣縮小
+            const balloonRx = 44 + normPos * 16; // 28 ~ 60
+            const balloonRy = 60 + normPos * 22; // 38 ~ 82
+            const leftBalloon = document.getElementById('svgLeftBalloon');
+            const rightBalloon = document.getElementById('svgRightBalloon');
+            leftBalloon.setAttribute('rx', balloonRx.toFixed(1));
+            leftBalloon.setAttribute('ry', balloonRy.toFixed(1));
+            leftBalloon.setAttribute('cy', (balloonRy * 0.95).toFixed(1));
+            rightBalloon.setAttribute('rx', balloonRx.toFixed(1));
+            rightBalloon.setAttribute('ry', balloonRy.toFixed(1));
+            rightBalloon.setAttribute('cy', (balloonRy * 0.95).toFixed(1));
+
+            // 更新寶特瓶讀數
+            const bottleReadout = document.getElementById('svgBottleLiveReadout');
+            bottleReadout.textContent = `P=${currentP.toFixed(0)} mmHg | V=${currentV.toFixed(2)} L`;
+
+            // 2. 更新右側「人體胸腔解剖模型」SVG 幾何形狀
+            // 吸氣時肋骨外擴 (thoraxSpread > 0)，橫膈膜往下壓平；呼氣時肋骨內縮，橫膈膜往上高拱
+            const thoraxSpread = normPos * 22;
+            const leftThoraxX = 205 - thoraxSpread;
+            const rightThoraxX = 595 + thoraxSpread;
+            const leftBaseX = 220 - thoraxSpread * 0.6;
+            const rightBaseX = 580 + thoraxSpread * 0.6;
+            const anatomyDiaphragmCtrlY = 395 + normPos * 75; // 呼氣高拱 (320)，吸氣壓平下降 (470)
+            const anatomyDiaphragmMidY = 405 + normPos * 38;
+
+            document.getElementById('svgThoraxCavity').setAttribute(
+                'd',
+                `M 360 110 Q ${leftThoraxX} 135 ${leftThoraxX} 320 L ${leftBaseX} 415 Q 400 ${anatomyDiaphragmCtrlY} ${rightBaseX} 415 L ${rightThoraxX} 320 Q ${rightThoraxX} 135 440 110 Z`
+            );
+            const diaphragmPathStr = `M ${leftBaseX - 4} 415 Q 400 ${anatomyDiaphragmCtrlY} ${rightBaseX + 4} 415`;
+            document.getElementById('svgAnatomyDiaphragm').setAttribute('d', diaphragmPathStr);
+            document.getElementById('svgAnatomyDiaphragmHighlight').setAttribute('d', diaphragmPathStr);
+            document.getElementById('svgAnatomyPullTab').setAttribute(
+                'transform',
+                `translate(400, ${anatomyDiaphragmMidY + 12})`
+            );
+
+            // 左右肺葉縮放與肋骨上舉外擴連動
+            const lungScaleX = 1 + normPos * 0.18;
+            const lungScaleY = 1 + normPos * 0.22;
+            document.getElementById('svgRightLungGroup').setAttribute(
+                'transform',
+                `translate(390, 245) scale(${lungScaleX.toFixed(3)}, ${lungScaleY.toFixed(3)})`
+            );
+            document.getElementById('svgLeftLungGroup').setAttribute(
+                'transform',
+                `translate(410, 245) scale(${lungScaleX.toFixed(3)}, ${lungScaleY.toFixed(3)})`
+            );
+
+            // 肋骨護籠隨呼吸上舉外擴
+            const ribScaleX = 1 + normPos * 0.09;
+            const ribShiftY = -normPos * 10;
+            document.getElementById('svgRibCageGroup').setAttribute(
+                'transform',
+                `translate(400, ${245 + ribShiftY}) scale(${ribScaleX.toFixed(3)}, 1) translate(-400, -245)`
+            );
+
+            // 3. 更新氣體分子點位置 (呈現體積小密度高、體積大密度低)
+            renderSvgMolecules(normPos, bottleMembraneMidY, anatomyDiaphragmMidY);
+
+            // 4. 更新波以耳定律 P-V 曲線圖上的發光紅點座標
+            const vToX = (v) => 85 + ((v - 2.25) / 1.50) * 440;
+            const pToY = (p) => 270 - ((p - 600) / 410) * 245;
+            const ptX = vToX(currentV);
+            const ptY = pToY(currentP);
+
+            document.getElementById('svgPvCrossV').setAttribute('x1', ptX.toFixed(1));
+            document.getElementById('svgPvCrossV').setAttribute('y1', ptY.toFixed(1));
+            document.getElementById('svgPvCrossV').setAttribute('x2', ptX.toFixed(1));
+
+            document.getElementById('svgPvCrossP').setAttribute('y1', ptY.toFixed(1));
+            document.getElementById('svgPvCrossP').setAttribute('x2', ptX.toFixed(1));
+            document.getElementById('svgPvCrossP').setAttribute('y2', ptY.toFixed(1));
+
+            document.getElementById('svgPvActivePointGroup').setAttribute('transform', `translate(${ptX.toFixed(1)}, ${ptY.toFixed(1)})`);
+            document.getElementById('svgPvPointText').textContent = `(${currentV.toFixed(2)}L, ${currentP.toFixed(0)}mmHg)`;
+            // 防止標籤超出圖表右邊界
+            const labelOffsetX = currentV > 3.15 ? -195 : 16;
+            const labelOffsetY = currentP > 860 ? 12 : -46;
+            document.getElementById('svgPvPointLabelBox').setAttribute('transform', `translate(${labelOffsetX}, ${labelOffsetY})`);
+
+            // 5. 更新所有文字與大數字儀表板
+            document.getElementById('bigValV').textContent = `${currentV.toFixed(2)} L`;
+            document.getElementById('bigValP').textContent = `${currentP.toFixed(1)} mmHg`;
+            document.getElementById('eqP').textContent = `${currentP.toFixed(1)} mmHg`;
+            document.getElementById('eqV').textContent = `${currentV.toFixed(2)} L`;
+
+            const banner = document.getElementById('liveStatusBanner');
+            const phaseBadge = document.getElementById('phaseBadge');
+            const causalityText = document.getElementById('phaseCausalityText');
+            const sliderDisplay = document.getElementById('sliderPercentDisplay');
+            const bottleTag = document.getElementById('bottleStatusTag');
+            const anatomyTag = document.getElementById('anatomyStatusTag');
+            const anatomyReadout = document.getElementById('svgAnatomyLiveReadout');
+            const bottleAirflowText = document.getElementById('bottleAirflowText');
+            const anatomyAirflowText = document.getElementById('anatomyAirflowText');
+            const bottleArrowShape = document.getElementById('bottleArrowShape');
+
+            const bigTagV = document.getElementById('bigTagV');
+            const bigTagP = document.getElementById('bigTagP');
+            const bigValDeltaP = document.getElementById('bigValDeltaP');
+            const bigTagDeltaP = document.getElementById('bigTagDeltaP');
+            const bigValFlow = document.getElementById('bigValFlow');
+            const bigTagFlow = document.getElementById('bigTagFlow');
+
+            if (normPos > 0.06) {
+                // 吸氣狀態
+                sliderDisplay.textContent = `${Math.round(simState.sliderVal)}% (吸氣下降)`;
+                sliderDisplay.className = 'text-sky-300 font-mono';
+
+                banner.className = 'edu-card p-6 border-4 border-sky-400 bg-slate-900/95 transition-all duration-300';
+                phaseBadge.textContent = '⬇️ 吸氣狀態 (Inhale)';
+                phaseBadge.className = 'px-6 py-2.5 rounded-2xl text-[28px] sm:text-[32px] font-black bg-sky-400 text-slate-950 shadow-lg shrink-0 text-center';
+                causalityText.innerHTML = `橫膈膜<span class="text-sky-300 underline decoration-4">往下拉 (收縮)</span> ➔ 胸腔體積 <span class="text-sky-300">V 變大 ↑</span> ➔ 根據波以耳定律，壓力 <span class="text-emerald-300">P 變小 ↓ (&lt; 760 mmHg)</span> ➔ 外界空氣<span class="text-rose-300">流入肺部使氣球膨脹</span>`;
+
+                bottleTag.textContent = '下拉橡皮膜 ➔ 氣球膨脹';
+                bottleTag.className = 'px-4 py-1 rounded-lg bg-sky-400 text-slate-950 font-black text-[20px]';
+                anatomyTag.textContent = '橫膈收縮下降 ➔ 肺臟擴張';
+                anatomyTag.className = 'px-4 py-1 rounded-lg bg-sky-400 text-slate-950 font-black text-[20px]';
+                anatomyReadout.textContent = '肋骨上舉外擴・橫膈下降';
+                anatomyReadout.setAttribute('fill', '#38bdf8');
+                bottleReadout.setAttribute('fill', '#34d399');
+
+                bottleAirflowText.textContent = '空氣流入 (吸氣) ⬇️';
+                anatomyAirflowText.textContent = '空氣流入肺臟 ⬇️';
+                bottleArrowShape.setAttribute('d', 'M 365 12 L 379 12 L 379 38 L 395 38 L 372 64 L 349 38 L 365 38 Z');
+                bottleArrowShape.setAttribute('fill', '#38bdf8');
+
+                bigTagV.textContent = '體積膨脹變大 ↑';
+                bigTagV.className = 'inline-block px-3 py-1 rounded-lg bg-sky-400 text-slate-950 font-black text-[20px]';
+                bigTagP.textContent = '壓力下降變小 ↓ (< 760)';
+                bigTagP.className = 'inline-block px-3 py-1 rounded-lg bg-emerald-400 text-slate-950 font-black text-[20px]';
+
+                bigValDeltaP.textContent = `${deltaP.toFixed(1)} mmHg`;
+                bigValDeltaP.className = 'text-[34px] sm:text-[38px] font-black font-mono text-emerald-300 leading-tight my-1';
+                bigTagDeltaP.textContent = '負壓狀態 (吸引外界空氣流入)';
+
+                bigValFlow.textContent = '空氣流入肺部 ⬇️';
+                bigValFlow.className = 'text-[32px] sm:text-[36px] font-black text-sky-300 leading-tight my-1';
+                bigTagFlow.textContent = '肺部 (小氣球) 充氣膨脹 🎈';
+
+            } else if (normPos < -0.06) {
+                // 呼氣狀態
+                sliderDisplay.textContent = `${Math.round(simState.sliderVal)}% (呼氣上升)`;
+                sliderDisplay.className = 'text-amber-300 font-mono';
+
+                banner.className = 'edu-card p-6 border-4 border-amber-400 bg-slate-900/95 transition-all duration-300';
+                phaseBadge.textContent = '⬆️ 呼氣狀態 (Exhale)';
+                phaseBadge.className = 'px-6 py-2.5 rounded-2xl text-[28px] sm:text-[32px] font-black bg-amber-400 text-slate-950 shadow-lg shrink-0 text-center';
+                causalityText.innerHTML = `橫膈膜<span class="text-amber-300 underline decoration-4">往上推 (舒張)</span> ➔ 胸腔體積 <span class="text-amber-300">V 變小 ↓</span> ➔ 根據波以耳定律，壓力 <span class="text-rose-300">P 變大 ↑ (&gt; 760 mmHg)</span> ➔ 肺內氣體<span class="text-amber-300">排出使氣球縮小</span>`;
+
+                bottleTag.textContent = '上推橡皮膜 ➔ 氣球縮小';
+                bottleTag.className = 'px-4 py-1 rounded-lg bg-amber-400 text-slate-950 font-black text-[20px]';
+                anatomyTag.textContent = '橫膈舒張上升 ➔ 肺臟縮小';
+                anatomyTag.className = 'px-4 py-1 rounded-lg bg-amber-400 text-slate-950 font-black text-[20px]';
+                anatomyReadout.textContent = '肋骨下降內縮・橫膈上升';
+                anatomyReadout.setAttribute('fill', '#fbbf24');
+                bottleReadout.setAttribute('fill', '#fb7185');
+
+                bottleAirflowText.textContent = '空氣排出 (呼氣) ⬆️';
+                anatomyAirflowText.textContent = '空氣排出體外 ⬆️';
+                bottleArrowShape.setAttribute('d', 'M 372 10 L 395 36 L 379 36 L 379 62 L 365 62 L 365 36 L 349 36 Z');
+                bottleArrowShape.setAttribute('fill', '#fbbf24');
+
+                bigTagV.textContent = '體積壓縮變小 ↓';
+                bigTagV.className = 'inline-block px-3 py-1 rounded-lg bg-amber-400 text-slate-950 font-black text-[20px]';
+                bigTagP.textContent = '壓力升高變大 ↑ (> 760)';
+                bigTagP.className = 'inline-block px-3 py-1 rounded-lg bg-rose-400 text-slate-950 font-black text-[20px]';
+
+                bigValDeltaP.textContent = `+${deltaP.toFixed(1)} mmHg`;
+                bigValDeltaP.className = 'text-[34px] sm:text-[38px] font-black font-mono text-rose-300 leading-tight my-1';
+                bigTagDeltaP.textContent = '正壓狀態 (擠壓肺內空氣排出)';
+
+                bigValFlow.textContent = '空氣排出體外 ⬆️';
+                bigValFlow.className = 'text-[32px] sm:text-[36px] font-black text-amber-300 leading-tight my-1';
+                bigTagFlow.textContent = '肺部 (小氣球) 排氣縮小 💨';
+
+            } else {
+                // 平衡狀態
+                sliderDisplay.textContent = `50% (壓力平衡)`;
+                sliderDisplay.className = 'text-white font-mono';
+
+                banner.className = 'edu-card p-6 border-4 border-slate-400 bg-slate-900/95 transition-all duration-300';
+                phaseBadge.textContent = '⚖️ 平衡狀態 (Equilibrium)';
+                phaseBadge.className = 'px-6 py-2.5 rounded-2xl text-[28px] sm:text-[32px] font-black bg-slate-200 text-slate-950 shadow-lg shrink-0 text-center';
+                causalityText.innerHTML = `橫膈膜位於<span class="text-white">靜息基準位置</span> ➔ 胸腔體積 <span class="text-sky-300">V = 3.00 L</span> ➔ 胸腔內氣壓 <span class="text-amber-300">P = 760 mmHg (等於大氣壓)</span> ➔ 內外無壓力差，氣流暫停`;
+
+                bottleTag.textContent = '內外壓力平衡 (760 mmHg)';
+                bottleTag.className = 'px-4 py-1 rounded-lg bg-slate-200 text-slate-950 font-black text-[20px]';
+                anatomyTag.textContent = '內外壓力平衡 (760 mmHg)';
+                anatomyTag.className = 'px-4 py-1 rounded-lg bg-slate-200 text-slate-950 font-black text-[20px]';
+                anatomyReadout.textContent = '靜息平衡位置 (無氣流)';
+                anatomyReadout.setAttribute('fill', '#e2e8f0');
+                bottleReadout.setAttribute('fill', '#e2e8f0');
+
+                bottleAirflowText.textContent = '內外壓力相等 (無氣流)';
+                anatomyAirflowText.textContent = '內外壓力相等 (無氣流)';
+
+                bigTagV.textContent = '基準體積 (3.00 L)';
+                bigTagV.className = 'inline-block px-3 py-1 rounded-lg bg-slate-300 text-slate-950 font-black text-[20px]';
+                bigTagP.textContent = '等於大氣壓 (760 mmHg)';
+                bigTagP.className = 'inline-block px-3 py-1 rounded-lg bg-slate-300 text-slate-950 font-black text-[20px]';
+
+                bigValDeltaP.textContent = `0.0 mmHg`;
+                bigValDeltaP.className = 'text-[34px] sm:text-[38px] font-black font-mono text-white leading-tight my-1';
+                bigTagDeltaP.textContent = '內外壓力相等 (氣體不流動)';
+
+                bigValFlow.textContent = '氣流暫停 ⚖️';
+                bigValFlow.className = 'text-[32px] sm:text-[36px] font-black text-slate-200 leading-tight my-1';
+                bigTagFlow.textContent = '肺部維持基準大小';
+            }
+        }
+
+        /***********************************************************************
+         * 4. 繪製 SVG 內部氣體分子與氣管流動粒子
+         ***********************************************************************/
+        function renderSvgMolecules(normPos, bottleBottomY, anatomyBottomY) {
+            const bottleGroup = document.getElementById('svgBottleMolecules');
+            const anatomyGroup = document.getElementById('svgAnatomyMolecules');
+            const bottleAirGroup = document.getElementById('svgBottleAirParticles');
+            const anatomyAirGroup = document.getElementById('svgAnatomyAirParticles');
+
+            if (!simState.showMolecules) {
+                bottleGroup.innerHTML = '';
+                anatomyGroup.innerHTML = '';
+                return;
+            }
+
+            // 呼氣時空間壓縮，分子顏色偏橘紅且密集；吸氣時空間擴大，分子顏色偏亮黃且分散
+            const dotColor = normPos < -0.08 ? '#fb7185' : '#fde047';
+            const topY = 175;
+
+            let bottleHtml = '';
+            let anatomyHtml = '';
+            const timeOffset = performance.now() * 0.004;
+
+            for (let i = 0; i < moleculeSeeds.length; i++) {
+                const s = moleculeSeeds[i];
+                const jitterX = Math.sin(timeOffset + s.phase) * 5;
+                const jitterY = Math.cos(timeOffset * 1.2 + s.phase) * 5;
+
+                // 寶特瓶內分子座標
+                const bx = 400 + s.rx * 165 + jitterX;
+                const by = topY + s.ry * (bottleBottomY - topY - 15) + jitterY;
+                bottleHtml += `<circle cx="${bx.toFixed(1)}" cy="${by.toFixed(1)}" r="5.5" fill="${dotColor}" stroke="#0f172a" stroke-width="1.5" />`;
+
+                // 胸腔內分子座標
+                const ax = 400 + s.rx * (175 + normPos * 16) + jitterX;
+                const ay = topY + s.ry * (anatomyBottomY - topY - 15) + jitterY;
+                anatomyHtml += `<circle cx="${ax.toFixed(1)}" cy="${ay.toFixed(1)}" r="5" fill="${dotColor}" opacity="0.85" />`;
+            }
+
+            bottleGroup.innerHTML = bottleHtml;
+            anatomyGroup.innerHTML = anatomyHtml;
+
+            // 繪製氣管內流動的氣流粒子
+            const dir = normPos > 0.06 ? 1 : (normPos < -0.06 ? -1 : 0);
+            simState.airflowPhase = (simState.airflowPhase + dir * 0.022 + 1) % 1;
+
+            let airHtml = '';
+            const airColor = dir >= 0 ? '#38bdf8' : '#fbbf24';
+            for (let i = 0; i < 8; i++) {
+                const p = (simState.airflowPhase + i / 8) % 1;
+                if (p < 0.65) {
+                    const y = 28 + (p / 0.65) * 172;
+                    airHtml += `<circle cx="400" cy="${y.toFixed(1)}" r="5" fill="${airColor}" />`;
+                } else {
+                    const t = (p - 0.65) / 0.35;
+                    const lx = 400 - t * 65;
+                    const rx = 400 + t * 65;
+                    const by = 200 + t * 50;
+                    airHtml += `<circle cx="${lx.toFixed(1)}" cy="${by.toFixed(1)}" r="4.5" fill="${airColor}" />`;
+                    airHtml += `<circle cx="${rx.toFixed(1)}" cy="${by.toFixed(1)}" r="4.5" fill="${airColor}" />`;
+                }
+            }
+            bottleAirGroup.innerHTML = airHtml;
+            anatomyAirGroup.innerHTML = airHtml;
+        }
+
+        /***********************************************************************
+         * 5. 支援直接在兩個 SVG 圖形上拖曳「橡皮膜」或「橫膈膜」
+         ***********************************************************************/
+        let dragStartClientY = 0;
+        let dragStartSliderVal = 80;
+
+        function startSvgDrag(e) {
+            simState.isDraggingSvg = true;
+            if (simState.isAutoPlaying) {
+                toggleAutoCycle();
+            }
+            dragStartClientY = e.touches ? e.touches[0].clientY : e.clientY;
+            dragStartSliderVal = simState.sliderVal;
+        }
+
+        function moveSvgDrag(e) {
+            if (!simState.isDraggingSvg) return;
+            if (e.cancelable) e.preventDefault();
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            const dy = clientY - dragStartClientY;
+            // 往下拉 (dy > 0) 增加 sliderVal (吸氣)，往上推 (dy < 0) 減少 sliderVal (呼氣)
+            const nextVal = Math.max(0, Math.min(100, dragStartSliderVal + dy * 0.45));
+            simState.sliderVal = nextVal;
+            simState.targetSliderVal = nextVal;
+            document.getElementById('breathSlider').value = Math.round(nextVal);
+            updateSimulationView();
+        }
+
+        function endSvgDrag() {
+            simState.isDraggingSvg = false;
+        }
+
+        // 綁定 SVG 拖曳事件
+        function bindSvgDragEvents() {
+            const bottleSvg = document.getElementById('bottleSvg');
+            const anatomySvg = document.getElementById('anatomySvg');
+
+            [bottleSvg, anatomySvg].forEach(svgEl => {
+                svgEl.addEventListener('mousedown', startSvgDrag);
+                svgEl.addEventListener('touchstart', startSvgDrag, { passive: false });
+            });
+
+            window.addEventListener('mousemove', moveSvgDrag);
+            window.addEventListener('touchmove', moveSvgDrag, { passive: false });
+            window.addEventListener('mouseup', endSvgDrag);
+            window.addEventListener('touchend', endSvgDrag);
+        }
+
+        /***********************************************************************
+         * 6. 滑桿與一鍵按鈕控制函式
+         ***********************************************************************/
+        function onSliderInput(val) {
+            if (simState.isAutoPlaying) {
+                toggleAutoCycle();
+            }
+            simState.sliderVal = parseFloat(val);
+            simState.targetSliderVal = simState.sliderVal;
+            updateSimulationView();
+        }
+
+        function setPresetState(targetVal) {
+            if (simState.isAutoPlaying) {
+                toggleAutoCycle();
+            }
+            simState.targetSliderVal = targetVal;
+        }
+
+        function toggleAutoCycle() {
+            simState.isAutoPlaying = !simState.isAutoPlaying;
+            const btn = document.getElementById('autoCycleBtn');
+            const icon = document.getElementById('autoCycleIcon');
+            const text = document.getElementById('autoCycleText');
+
+            if (simState.isAutoPlaying) {
+                const norm = (simState.sliderVal - 50) / 50;
+                simState.autoAngle = Math.asin(Math.max(-1, Math.min(1, norm)));
+                icon.textContent = '⏸️';
+                text.textContent = '暫停自動呼吸循環';
+                btn.className = 'flex items-center justify-center gap-3 bg-rose-500 hover:bg-rose-400 active:bg-rose-600 text-white font-black text-[24px] py-4 px-5 rounded-2xl border-4 border-rose-200 shadow-lg transition cursor-pointer';
+            } else {
+                icon.textContent = '▶️';
+                text.textContent = '自動呼吸循環播放';
+                btn.className = 'flex items-center justify-center gap-3 bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-slate-950 font-black text-[24px] py-4 px-5 rounded-2xl border-4 border-emerald-200 shadow-lg transition cursor-pointer';
+            }
+        }
+
+        function toggleVisualOptions() {
+            simState.showMolecules = document.getElementById('toggleMolecules').checked;
+            simState.showLabels = document.getElementById('toggleLabels').checked;
+
+            const labelGroups = document.querySelectorAll('.svg-label-group');
+            labelGroups.forEach(g => {
+                g.style.display = simState.showLabels ? 'block' : 'none';
+            });
+            updateSimulationView();
+        }
+
+        /***********************************************************************
+         * 7. 一鍵下載完整單一 HTML 檔案功能 (供離線課堂教學使用)
+         ***********************************************************************/
+        function downloadCompleteHTML() {
+            try {
+                const htmlContent = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+                const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'lung_boyle_law_experiment.html';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                const toast = document.getElementById('downloadToast');
+                toast.classList.remove('hidden');
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                }, 5000);
+            } catch (err) {
+                console.error('HTML 檔案下載失敗:', err);
+            }
+        }
+
+        /***********************************************************************
+         * 8. 主動畫迴圈 (立即執行首次渲染，確保無須等待即可見)
+         ***********************************************************************/
+        let lastFrameTime = performance.now();
+
+        function animationTick(now) {
+            const dt = Math.min(0.05, (now - lastFrameTime) / 1000);
+            lastFrameTime = now;
+
+            if (simState.isAutoPlaying && !simState.isDraggingSvg) {
+                simState.autoAngle += dt * 1.6;
+                simState.sliderVal = 50 + Math.sin(simState.autoAngle) * 48;
+                simState.targetSliderVal = simState.sliderVal;
+                document.getElementById('breathSlider').value = Math.round(simState.sliderVal);
+            } else if (!simState.isDraggingSvg) {
+                const diff = simState.targetSliderVal - simState.sliderVal;
+                if (Math.abs(diff) > 0.05) {
+                    simState.sliderVal += diff * Math.min(1, dt * 8);
+                    document.getElementById('breathSlider').value = Math.round(simState.sliderVal);
+                }
+            }
+
+            updateSimulationView();
+            requestAnimationFrame(animationTick);
+        }
+
+        // 腳本載入時立即初始化 SVG 路徑與狀態，不依賴 window.onload 或 getBoundingClientRect
+        buildAccuratePvCurvePath();
+        bindSvgDragEvents();
+        updateSimulationView();
+        requestAnimationFrame(animationTick);
+    </script>
+
+</body></html>
