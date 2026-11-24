@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>勒沙特列原理 — 二氧化氮的雙聚反應互動實驗室</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  :root {
+    --bg-main: #0f172a;
+    --bg-panel: #1e293b;
+    --bg-card: #0b1120;
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --accent-blue: #38bdf8;
+    --accent-amber: #fbbf24;
+    --accent-red: #f87171;
+    --accent-green: #4ade80;
+    --border-color: #334155;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: "Noto Sans TC", "Microsoft JhengHei", system-ui, -apple-system, sans-serif;
+  }
+
+  body {
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    font-size: 18px;
+    line-height: 1.5;
+    padding: 16px;
+  }
+
+  header {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 16px 24px;
+    margin-bottom: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+
+  header h1 {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--accent-amber);
+    letter-spacing: 0.5px;
+  }
+
+  .equation-banner {
+    background-color: var(--bg-card);
+    border: 2px solid #475569;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 22px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .tag-no2 {
+    color: #fb923c;
+    background: rgba(251, 146, 60, 0.15);
+    padding: 2px 10px;
+    border-radius: 6px;
+    border: 1px solid #fb923c;
+  }
+
+  .tag-n2o4 {
+    color: #e2e8f0;
+    background: rgba(226, 232, 240, 0.15);
+    padding: 2px 10px;
+    border-radius: 6px;
+    border: 1px solid #94a3b8;
+  }
+
+  .tag-heat {
+    color: #f87171;
+    font-size: 20px;
+  }
+
+  /* Main 3-column Grid */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 320px 1fr 400px;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  @media (max-width: 1200px) {
+    .main-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .panel {
+    background-color: var(--bg-panel);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .panel-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent-blue);
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 10px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  /* Control Panel */
+  .control-group {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 16px;
+  }
+
+  .control-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-weight: 700;
+    font-size: 18px;
+  }
+
+  .value-badge {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--accent-amber);
+    background: #1e293b;
+    padding: 2px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--accent-amber);
+  }
+
+  input[type="range"] {
+    width: 100%;
+    height: 14px;
+    border-radius: 8px;
+    background: #334155;
+    outline: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--accent-blue);
+    border: 3px solid #fff;
+    cursor: pointer;
+  }
+
+  .quick-presets {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .preset-btn {
+    background-color: #334155;
+    color: #fff;
+    border: 1px solid #475569;
+    border-radius: 6px;
+    padding: 6px 4px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.15s;
+  }
+
+  .preset-btn:hover {
+    background-color: #475569;
+    border-color: var(--accent-blue);
+  }
+
+  .btn-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: auto;
+  }
+
+  .action-btn {
+    padding: 14px;
+    font-size: 20px;
+    font-weight: 700;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.1s, opacity 0.2s;
+  }
+
+  .action-btn:active {
+    transform: scale(0.97);
+  }
+
+  .btn-play {
+    background-color: var(--accent-green);
+    color: #064e3b;
+  }
+
+  .btn-pause {
+    background-color: var(--accent-amber);
+    color: #451a03;
+  }
+
+  .btn-reset {
+    background-color: #64748b;
+    color: #fff;
+  }
+
+  .status-indicator {
+    margin-top: 14px;
+    padding: 12px;
+    border-radius: 8px;
+    background-color: var(--bg-card);
+    border-left: 5px solid var(--accent-blue);
+    font-size: 17px;
+  }
+
+  /* Canvas Simulation Area */
+  .canvas-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg-card);
+    border-radius: 10px;
+    border: 2px solid #475569;
+    padding: 12px;
+    position: relative;
+  }
+
+  canvas#simCanvas {
+    width: 100%;
+    max-width: 560px;
+    height: 430px;
+    border-radius: 8px;
+    background: #090d16;
+  }
+
+  .legend-bar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 12px;
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .dot-no2 {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background-color: #d97706;
+    border: 2px solid #fef3c7;
+    display: inline-block;
+  }
+
+  .dot-n2o4 {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .dot-n2o4 span {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: #cbd5e1;
+    border: 2px solid #475569;
+    display: inline-block;
+  }
+
+  .dot-n2o4 span:last-child {
+    margin-left: -4px;
+  }
+
+  /* Chart Area */
+  .chart-container {
+    position: relative;
+    height: 280px;
+    width: 100%;
+    background-color: var(--bg-card);
+    border-radius: 10px;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+  }
+
+  .live-metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .metric-box {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px 12px;
+    text-align: center;
+  }
+
+  .metric-label {
+    font-size: 16px;
+    color: var(--text-secondary);
+  }
+
+  .metric-val {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--accent-blue);
+    margin-top: 2px;
+  }
+
+  /* Bottom Grid: Formula & Quiz */
+  .bottom-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  @media (max-width: 1100px) {
+    .bottom-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .formula-box {
+    background-color: var(--bg-card);
+    border: 2px solid #475569;
+    border-radius: 10px;
+    padding: 16px;
+    font-size: 20px;
+    line-height: 1.7;
+  }
+
+  .formula-highlight {
+    color: var(--accent-amber);
+    font-weight: 800;
+    font-size: 22px;
+  }
+
+  .formula-step {
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed #334155;
+  }
+
+  .formula-step:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  /* Quiz Section */
+  .quiz-header-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .quiz-btn {
+    background-color: var(--accent-blue);
+    color: #0f172a;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .quiz-btn.secondary {
+    background-color: #475569;
+    color: #fff;
+  }
+
+  .quiz-item {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+
+  .quiz-q {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: #f1f5f9;
+  }
+
+  .quiz-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  @media (max-width: 600px) {
+    .quiz-options {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .quiz-opt-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #1e293b;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #334155;
+    cursor: pointer;
+    font-size: 17px;
+  }
+
+  .quiz-opt-label:hover {
+    border-color: var(--accent-blue);
+  }
+
+  .quiz-opt-label input[type="radio"] {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--accent-blue);
+  }
+
+  .quiz-feedback {
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 17px;
+    display: none;
+  }
+
+  .feedback-correct {
+    background-color: rgba(74, 222, 128, 0.15);
+    border: 1px solid var(--accent-green);
+    color: #bbf7d0;
+  }
+
+  .feedback-wrong {
+    background-color: rgba(248, 113, 113, 0.15);
+    border: 1px solid var(--accent-red);
+    color: #fecaca;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🧪 高中化學互動實驗室：勒沙特列原理 — 二氧化氮的雙聚反應</h1>
+  <div class="equation-banner">
+    <span class="tag-no2">2 NO₂(g)（紅棕色）</span>
+    <span>⇌</span>
+    <span class="tag-n2o4">N₂O₄(g)（無色）</span>
+    <span class="tag-heat">ΔH = -57.2 kJ/mol（放熱）</span>
+  </div>
+</header>
+
+<div class="main-grid">
+  <!-- Left Panel: Controls -->
+  <section class="panel">
+    <div class="panel-title">
+      <span>🎛️ 實驗變因控制面板</span>
+    </div>
+
+    <div class="control-group">
+      <div class="control-header">
+        <span>變因 1：注射筒體積 (V)</span>
+        <span class="value-badge" id="volDisplay">20.0 mL</span>
+      </div>
+      <input type="range" id="volSlider" min="10" max="40" step="1" value="20">
+      <div class="quick-presets">
+        <button class="preset-btn" onclick="setVolume(10)">壓縮 (10 mL)</button>
+        <button class="preset-btn" onclick="setVolume(20)">常壓 (20 mL)</button>
+        <button class="preset-btn" onclick="setVolume(40)">減壓 (40 mL)</button>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <div class="control-header">
+        <span>變因 2：水浴溫度 (T)</span>
+        <span class="value-badge" id="tempDisplay">25 °C</span>
+      </div>
+      <input type="range" id="tempSlider" min="0" max="80" step="5" value="25">
+      <div class="quick-presets">
+        <button class="preset-btn" onclick="setTemp(0)">冰水浴 (0°C)</button>
+        <button class="preset-btn" onclick="setTemp(25)">室溫 (25°C)</button>
+        <button class="preset-btn" onclick="setTemp(75)">熱水浴 (75°C)</button>
+      </div>
+    </div>
+
+    <div class="status-indicator" id="shiftBanner">
+      <strong>目前平衡狀態：</strong><br>
+      系統處於室溫常壓平衡狀態。請調整體積或溫度觀察顏色與粒子變化。
+    </div>
+
+    <div class="btn-row" style="margin-top: 16px;">
+      <button class="action-btn btn-pause" id="toggleBtn" onclick="togglePlay()">⏸ 暫停模擬</button>
+      <button class="action-btn btn-reset" onclick="resetExperiment()">🔄 重置實驗</button>
+    </div>
+  </section>
+
+  <!-- Center Panel: HTML5 Canvas Simulation -->
+  <section class="panel">
+    <div class="panel-title">
+      <span>🔬 巨觀顏色與微觀粒子動態模擬</span>
+      <span style="font-size: 17px; color: #94a3b8;">對照組 B (25°C, 20mL) vs 實驗組 A</span>
+    </div>
+    <div class="canvas-wrapper">
+      <canvas id="simCanvas" width="560" height="430"></canvas>
+      <div class="legend-bar">
+        <div class="legend-item">
+          <span class="dot-no2"></span>
+          <span>NO₂ 單體（紅棕色）</span>
+        </div>
+        <div class="legend-item">
+          <span class="dot-n2o4"><span></span><span></span></span>
+          <span>N₂O₄ 雙聚體（無色）</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Right Panel: Real-time Chart.js -->
+  <section class="panel">
+    <div class="panel-title">
+      <span>📈 總壓力對體積關係圖 (P - V 圖)</span>
+    </div>
+    <div class="chart-container">
+      <canvas id="pvChart"></canvas>
+    </div>
+    <div class="live-metrics">
+      <div class="metric-box">
+        <div class="metric-label">系統總壓力 (P<sub>總</sub>)</div>
+        <div class="metric-val" id="metricP">1.00 atm</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">平衡常數 (K<sub>p</sub>)</div>
+        <div class="metric-val" id="metricKp">6.85 atm⁻¹</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">NO₂ 莫耳分率 / 數量</div>
+        <div class="metric-val" id="metricNO2" style="color: #fb923c;">20 顆 (40%)</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-label">N₂O₄ 莫耳分率 / 數量</div>
+        <div class="metric-val" id="metricN2O4" style="color: #e2e8f0;">15 顆 (60%)</div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- Bottom Grid: Formula Breakdown & Quiz -->
+<div class="bottom-grid">
+  <!-- Live Formula Breakdown -->
+  <section class="panel">
+    <div class="panel-title">
+      <span>🧮 即時課本公式拆解與平衡移動推演</span>
+    </div>
+    <div class="formula-box" id="formulaOutput">
+      <!-- Populated dynamically by JS -->
+    </div>
+  </section>
+
+  <!-- Self-Check Quiz -->
+  <section class="panel">
+    <div class="panel-title">
+      <span>📝 隨堂檢核區（隨機題庫）</span>
+      <div class="quiz-header-actions">
+        <button class="quiz-btn" onclick="gradeQuiz()">✔ 自動批改</button>
+        <button class="quiz-btn secondary" onclick="generateQuiz()">🎲 換新題目</button>
+      </div>
+    </div>
+    <div id="quizContainer">
+      <!-- Populated dynamically by JS -->
+    </div>
+  </section>
+</div>
+
+<script>
+  // ==========================================
+  // 1. 化學熱力學與平衡物理模型 (2NO2 <=> N2O4)
+  // ==========================================
+  // Total N atoms conserved: N_total_atoms = N_NO2 + 2 * N_N2O4 = 50 units (scaled for visualization)
+  // Standard state (25°C = 298.15 K, V = 20 mL): P_total = 1.00 atm
+  // Delta H = -57200 J/mol, R = 8.314 J/(mol*K)
+  // Kp(298.15 K) = 6.85 atm^-1
+
+  const TOTAL_N_UNITS = 50; // 50 nitrogen units: if all NO2 -> 50 particles; if all N2O4 -> 25 dimers
+  const R_GAS = 8.314;
+  const DELTA_H = -57200; // J/mol
+  const KP_298 = 6.85;
+  const T_REF = 298.15;
+
+  let state = {
+    volume: 20,      // mL (10 to 40)
+    tempC: 25,       // °C (0 to 80)
+    isPlaying: true,
+    // Actual instantaneous counts in simulation (smoothly approaches equilibrium)
+    no2Count: 16,
+    n2o4Count: 17,
+    // Target equilibrium counts
+    eqNo2: 16,
+    eqN2O4: 17,
+    kp: 6.85,
+    pTotal: 1.00,
+    pNO2: 0.32,
+    pN2O4: 0.68,
+    // Visual flash effect for compression/expansion
+    instantColorBoost: 0,
+    lastActionText: "系統處於室溫（25 °C）、常壓（20 mL）初始平衡狀態。"
+  };
+
+  function calcKp(tempC) {
+    const T = tempC + 273.15;
+    // Van 't Hoff equation: ln(Kp / Kp_ref) = (-DeltaH / R) * (1/T - 1/T_ref)
+    const lnRatio = (-DELTA_H / R_GAS) * (1 / T - 1 / T_REF);
+    return KP_298 * Math.exp(lnRatio);
+  }
+
+  // Solve equilibrium moles given V (mL) and T (°C)
+  // Reference: at 25°C, 20mL, total moles n_tot_ref produces P = 1.00 atm
+  // Let's calibrate total N-atom moles n_N so that at 25°C, 20mL, P_total = 1.00 atm
+  function solveEquilibrium(volML, tempC) {
+    const T = tempC + 273.15;
+    const Kp = calcKp(tempC);
+    const V_L = volML / 1000.0;
+
+    // Calibrated total N-atom moles = 1.242e-3 mol
+    // n_NO2 + 2 * n_N2O4 = n_N
+    // P_NO2 = n_NO2 * R * T / V_L (in atm, R = 0.08206 L*atm/(mol*K))
+    // Kp = P_N2O4 / (P_NO2)^2 = (n_N2O4 * RT/V) / (n_NO2 * RT/V)^2 = (n_N2O4 / n_NO2^2) * (V / RT)
+    // Let C = Kp * (R_atm * T / V_L), then n_N2O4 = C * n_NO2^2
+    // Since n_NO2 + 2 * C * n_NO2^2 = n_N => 2C * x^2 + x - n_N = 0
+    const R_ATM = 0.08206;
+    const n_N = 0.001242;
+    const C = Kp * (R_ATM * T) / V_L;
+
+    const n_NO2 = (-1 + Math.sqrt(1 + 8 * C * n_N)) / (4 * C);
+    const n_N2O4 = (n_N - n_NO2) / 2;
+
+    const pNO2 = (n_NO2 * R_ATM * T) / V_L;
+    const pN2O4 = (n_N2O4 * R_ATM * T) / V_L;
+    const pTotal = pNO2 + pN2O4;
+
+    // Map to 50 N-units for particle visualization
+    const fracNO2_atoms = n_NO2 / n_N;
+    let eqNo2 = Math.round(TOTAL_N_UNITS * fracNO2_atoms);
+    // Keep parity even so N2O4 is integer
+    if (eqNo2 % 2 !== 0) eqNo2 += 1;
+    eqNo2 = Math.max(2, Math.min(TOTAL_N_UNITS - 2, eqNo2));
+    const eqN2O4 = (TOTAL_N_UNITS - eqNo2) / 2;
+
+    return { Kp, pTotal, pNO2, pN2O4, eqNo2, eqN2O4, n_NO2, n_N2O4 };
+  }
+
+  // Initialize reference state
+  const refState = solveEquilibrium(20, 25);
+  state.no2Count = refState.eqNo2;
+  state.n2o4Count = refState.eqN2O4;
+
+  // ==========================================
+  // 2. HTML5 Canvas 針筒巨觀與微觀粒子動態模擬
+  // ==========================================
+  const canvas = document.getElementById("simCanvas");
+  const ctx = canvas.getContext("2d");
+
+  let particles = [];
+
+  function syncParticlesToCounts(targetNo2, targetN2O4) {
+    let currentNo2 = particles.filter(p => p.type === "NO2");
+    let currentN2O4 = particles.filter(p => p.type === "N2O4");
+
+    // Convert 2 NO2 -> 1 N2O4 (Dimerization)
+    while (currentNo2.length > targetNo2 && currentNo2.length >= 2) {
+      const p1 = currentNo2.pop();
+      const p2 = currentNo2.pop();
+      particles = particles.filter(p => p !== p1 && p !== p2);
+      particles.push({
+        type: "N2O4",
+        x: p1.x,
+        y: p1.y,
+        vx: (p1.vx + p2.vx) * 0.45,
+        vy: (p1.vy + p2.vy) * 0.45,
+        angle: Math.random() * Math.PI * 2,
+        vAngle: (Math.random() - 0.5) * 0.08
+      });
+      currentN2O4.push(particles[particles.length - 1]);
+    }
+
+    // Dissociate 1 N2O4 -> 2 NO2
+    while (currentNo2.length < targetNo2 && currentN2O4.length >= 1) {
+      const dimer = currentN2O4.pop();
+      particles = particles.filter(p => p !== dimer);
+      const speed = getThermalSpeed();
+      const a1 = Math.random() * Math.PI * 2;
+      const a2 = a1 + Math.PI;
+      particles.push({
+        type: "NO2",
+        x: dimer.x,
+        y: dimer.y,
+        vx: Math.cos(a1) * speed,
+        vy: Math.sin(a1) * speed
+      });
+      particles.push({
+        type: "NO2",
+        x: dimer.x,
+        y: dimer.y,
+        vx: Math.cos(a2) * speed,
+        vy: Math.sin(a2) * speed
+      });
+      currentNo2.push(particles[particles.length - 1], particles[particles.length - 2]);
+    }
+  }
+
+  function getThermalSpeed() {
+    // Speed scales with sqrt(T)
+    return 1.2 + (state.tempC / 80) * 2.2;
+  }
+
+  function initParticles() {
+    particles = [];
+    const eq = solveEquilibrium(state.volume, state.tempC);
+    state.no2Count = eq.eqNo2;
+    state.n2o4Count = eq.eqN2O4;
+
+    const chamber = getChamberBounds(state.volume);
+    const speed = getThermalSpeed();
+
+    for (let i = 0; i < state.no2Count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      particles.push({
+        type: "NO2",
+        x: chamber.x + 20 + Math.random() * (chamber.w - 40),
+        y: chamber.top + 20 + Math.random() * (chamber.h - 40),
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed
+      });
+    }
+
+    for (let i = 0; i < state.n2o4Count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      particles.push({
+        type: "N2O4",
+        x: chamber.x + 25 + Math.random() * (chamber.w - 50),
+        y: chamber.top + 25 + Math.random() * (chamber.h - 50),
+        vx: Math.cos(angle) * speed * 0.72,
+        vy: Math.sin(angle) * speed * 0.72,
+        angle: Math.random() * Math.PI * 2,
+        vAngle: (Math.random() - 0.5) * 0.08
+      });
+    }
+  }
+
+  function getChamberBounds(volML) {
+    // Syringe barrel bottom fixed at y = 375, max height at 40mL = 270px
+    const bottomY = 375;
+    const maxH = 270;
+    const h = (volML / 40) * maxH;
+    const topY = bottomY - h;
+    return {
+      x: 240,
+      w: 230,
+      top: topY,
+      bottom: bottomY,
+      h: h
+    };
+  }
+
+  function drawSyringe(x, w, volML, no2Count, label, subLabel, tempC) {
+    const bottomY = 375;
+    const maxH = 270;
+    const topBarrelY = bottomY - maxH;
+    const gasH = (volML / 40) * maxH;
+    const pistonY = bottomY - gasH;
+
+    // 1. Water bath / environment tint behind syringe
+    if (tempC !== 25) {
+      ctx.fillStyle = tempC > 25 ? "rgba(239, 68, 68, 0.14)" : "rgba(56, 189, 248, 0.16)";
+      ctx.beginPath();
+      ctx.roundRect(x - 16, topBarrelY + 40, w + 32, maxH - 25, 12);
+      ctx.fill();
+      ctx.strokeStyle = tempC > 25 ? "rgba(248, 113, 113, 0.5)" : "rgba(56, 189, 248, 0.5)";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    // 2. Macroscopic Gas Color (Beer-Lambert law: Absorbance ~ [NO2] = no2Count / volML)
+    const concNO2 = no2Count / volML; // Reference at 20mL, 16 NO2 => 0.80
+    const alpha = Math.min(0.88, Math.max(0.08, concNO2 * 0.52));
+    ctx.fillStyle = `rgba(194, 65, 12, ${alpha.toFixed(3)})`;
+    ctx.fillRect(x, pistonY, w, gasH);
+
+    // 3. Syringe Barrel Glass Outline
+    ctx.strokeStyle = "#94a3b8";
+    ctx.lineWidth = 3;
+    ctx.strokeRect(x, topBarrelY, w, maxH);
+
+    // Top flange of syringe
+    ctx.fillStyle = "#64748b";
+    ctx.fillRect(x - 14, topBarrelY - 6, w + 28, 6);
+
+    // Rubber Cap at bottom tip (Red cap like in the video!)
+    ctx.fillStyle = "#475569";
+    ctx.fillRect(x + w / 2 - 10, bottomY, 20, 12);
+    ctx.fillStyle = "#ef4444";
+    ctx.beginPath();
+    ctx.roundRect(x + w / 2 - 16, bottomY + 10, 32, 22, 4);
+    ctx.fill();
+
+    // 4. Graduation marks (10, 20, 30, 40 mL)
+    ctx.fillStyle = "#cbd5e1";
+    ctx.font = "bold 14px sans-serif";
+    ctx.textAlign = "right";
+    for (let v = 10; v <= 40; v += 5) {
+      const markY = bottomY - (v / 40) * maxH;
+      const tickW = v % 10 === 0 ? 16 : 9;
+      ctx.beginPath();
+      ctx.moveTo(x + w, markY);
+      ctx.lineTo(x + w - tickW, markY);
+      ctx.strokeStyle = "#cbd5e1";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      if (v % 10 === 0) {
+        ctx.fillText(`${v}mL`, x + w - 20, markY + 5);
+      }
+    }
+
+    // 5. Plunger & Black Rubber Piston
+    // Piston rubber head
+    ctx.fillStyle = "#1e293b";
+    ctx.fillRect(x + 2, pistonY - 18, w - 4, 18);
+    ctx.strokeStyle = "#000";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x + 2, pistonY - 18, w - 4, 18);
+
+    // Plunger rod extending upward
+    ctx.fillStyle = "rgba(148, 163, 184, 0.45)";
+    ctx.fillRect(x + w / 2 - 14, pistonY - 85, 28, 67);
+    // Plunger top thumb pad
+    ctx.fillStyle = "#94a3b8";
+    ctx.fillRect(x + w / 2 - 36, pistonY - 92, 72, 8);
+
+    // 6. Labels above syringe
+    ctx.fillStyle = "#f8fafc";
+    ctx.font = "bold 19px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(label, x + w / 2, 26);
+    ctx.fillStyle = "#fbbf24";
+    ctx.font = "bold 16px sans-serif";
+    ctx.fillText(subLabel, x + w / 2, 48);
+  }
+
+  let frameCounter = 0;
+
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Gradually relax current particle counts toward equilibrium counts (chemical kinetics relaxation)
+    if (state.isPlaying) {
+      frameCounter++;
+      if (frameCounter % 12 === 0) {
+        if (state.no2Count < state.eqNo2) {
+          state.no2Count += 2;
+          state.n2o4Count -= 1;
+          syncParticlesToCounts(state.no2Count, state.n2o4Count);
+        } else if (state.no2Count > state.eqNo2) {
+          state.no2Count -= 2;
+          state.n2o4Count += 1;
+          syncParticlesToCounts(state.no2Count, state.n2o4Count);
+        }
+        updateLiveMetricsDisplay();
+      }
+    }
+
+    // Draw Reference Syringe B (Left side, smaller width, fixed at 25°C, 20mL)
+    drawSyringe(35, 135, 20, refState.eqNo2, "對照組 B", "25°C / 20mL", 25);
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "15px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("固定室溫常壓", 102, 230);
+    ctx.fillText("顏色基準對照", 102, 252);
+
+    // Draw Experimental Syringe A (Right side, interactive with particles)
+    drawSyringe(240, 230, state.volume, state.no2Count, "實驗組 A（動態模擬）", `${state.tempC}°C / ${state.volume}mL`, state.tempC);
+
+    // Update & Draw Particles inside Syringe A
+    const chamber = getChamberBounds(state.volume);
+    const speedTarget = getThermalSpeed();
+
+    particles.forEach(p => {
+      if (state.isPlaying) {
+        // Adjust speed smoothly to match temperature
+        const curSpeed = Math.hypot(p.vx, p.vy) || 1;
+        const desired = p.type === "NO2" ? speedTarget : speedTarget * 0.72;
+        p.vx = (p.vx / curSpeed) * desired;
+        p.vy = (p.vy / curSpeed) * desired;
+
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.type === "N2O4") p.angle += p.vAngle;
+      }
+
+      const margin = p.type === "NO2" ? 9 : 14;
+      // Keep inside walls (important when piston moves down quickly)
+      if (p.x < chamber.x + margin) { p.x = chamber.x + margin; p.vx = Math.abs(p.vx); }
+      if (p.x > chamber.x + chamber.w - margin) { p.x = chamber.x + chamber.w - margin; p.vx = -Math.abs(p.vx); }
+      if (p.y < chamber.top + margin) { p.y = chamber.top + margin; p.vy = Math.abs(p.vy); }
+      if (p.y > chamber.bottom - margin) { p.y = chamber.bottom - margin; p.vy = -Math.abs(p.vy); }
+
+      if (p.type === "NO2") {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 7, 0, Math.PI * 2);
+        ctx.fillStyle = "#f97316";
+        ctx.fill();
+        ctx.strokeStyle = "#fef3c7";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      } else {
+        // Draw N2O4 as two bonded pale-gray spheres
+        const dx = Math.cos(p.angle) * 5.5;
+        const dy = Math.sin(p.angle) * 5.5;
+
+        ctx.beginPath();
+        ctx.arc(p.x - dx, p.y - dy, 6.5, 0, Math.PI * 2);
+        ctx.fillStyle = "#e2e8f0";
+        ctx.fill();
+        ctx.strokeStyle = "#334155";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(p.x + dx, p.y + dy, 6.5, 0, Math.PI * 2);
+        ctx.fillStyle = "#cbd5e1";
+        ctx.fill();
+        ctx.strokeStyle = "#334155";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+    });
+
+    requestAnimationFrame(animate);
+  }
+
+  // ==========================================
+  // 3. Chart.js 總壓力對體積關係圖 (P - V 圖)
+  // ==========================================
+  const chartCtx = document.getElementById("pvChart").getContext("2d");
+  let pvChart;
+
+  function buildPVChartData(tempC) {
+    const vols = [10, 12, 15, 20, 25, 30, 35, 40];
+    const eqPressures = [];
+    const boyleIdeal = [];
+
+    // Reference P at 20 mL for current temperature
+    const pAt20 = solveEquilibrium(20, tempC).pTotal;
+
+    vols.forEach(v => {
+      const eq = solveEquilibrium(v, tempC);
+      eqPressures.push({ x: v, y: Number(eq.pTotal.toFixed(3)) });
+      // Pure Boyle's Law without equilibrium shift (P * V = const from 20mL)
+      boyleIdeal.push({ x: v, y: Number(((pAt20 * 20) / v).toFixed(3)) });
+    });
+
+    const currentPt = [{
+      x: state.volume,
+      y: Number(state.pTotal.toFixed(3))
+    }];
+
+    return { eqPressures, boyleIdeal, currentPt };
+  }
+
+  function initChart() {
+    const data = buildPVChartData(state.tempC);
+    pvChart = new Chart(chartCtx, {
+      type: "scatter",
+      data: {
+        datasets: [
+          {
+            label: "目前實驗狀態點",
+            data: data.currentPt,
+            backgroundColor: "#fbbf24",
+            borderColor: "#ffffff",
+            borderWidth: 3,
+            pointRadius: 10,
+            pointHoverRadius: 12,
+            showLine: false,
+            order: 1
+          },
+          {
+            label: "實際平衡曲線（含雙聚移動）",
+            data: data.eqPressures,
+            borderColor: "#38bdf8",
+            backgroundColor: "rgba(56, 189, 248, 0.2)",
+            borderWidth: 3,
+            pointRadius: 4,
+            showLine: true,
+            tension: 0.3,
+            order: 2
+          },
+          {
+            label: "無平衡移動（波以耳定律對照）",
+            data: data.boyleIdeal,
+            borderColor: "#94a3b8",
+            borderDash: [6, 6],
+            borderWidth: 2,
+            pointRadius: 0,
+            showLine: true,
+            tension: 0.3,
+            order: 3
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 200 },
+        plugins: {
+          legend: {
+            labels: {
+              color: "#f8fafc",
+              font: { size: 14, weight: "bold" }
+            }
+          }
+        },
+        scales: {
+          x: {
+            type: "linear",
+            min: 8,
+            max: 42,
+            title: {
+              display: true,
+              text: "針筒體積 V (mL)",
+              color: "#cbd5e1",
+              font: { size: 15, weight: "bold" }
+            },
+            ticks: { color: "#cbd5e1", font: { size: 14 } },
+            grid: { color: "#334155" }
+          },
+          y: {
+            min: 0.3,
+            max: 2.6,
+            title: {
+              display: true,
+              text: "系統總壓力 P (atm)",
+              color: "#cbd5e1",
+              font: { size: 15, weight: "bold" }
+            },
+            ticks: { color: "#cbd5e1", font: { size: 14 } },
+            grid: { color: "#334155" }
+          }
+        }
+      }
+    });
+  }
+
+  function updateChart() {
+    const data = buildPVChartData(state.tempC);
+    pvChart.data.datasets[0].data = data.currentPt;
+    pvChart.data.datasets[1].data = data.eqPressures;
+    pvChart.data.datasets[2].data = data.boyleIdeal;
+    pvChart.update();
+  }
+
+  // ==========================================
+  // 4. UI 更新與即時公式拆解
+  // ==========================================
+  function updateLiveMetricsDisplay() {
+    const totalParticles = state.no2Count + state.n2o4Count;
+    const pctNO2 = Math.round((state.no2Count / totalParticles) * 100);
+    const pctN2O4 = 100 - pctNO2;
+
+    document.getElementById("metricP").textContent = `${state.pTotal.toFixed(2)} atm`;
+    document.getElementById("metricKp").textContent = `${state.kp.toFixed(2)} atm⁻¹`;
+    document.getElementById("metricNO2").textContent = `${state.no2Count} 顆 (${pctNO2}%)`;
+    document.getElementById("metricN2O4").textContent = `${state.n2o4Count} 顆 (${pctN2O4}%)`;
+  }
+
+  function updateFormulaBreakdown() {
+    const T_K = (state.tempC + 273.15).toFixed(2);
+    const kpStr = state.kp.toFixed(2);
+    const pNO2Str = state.pNO2.toFixed(3);
+    const pN2O4Str = state.pN2O4.toFixed(3);
+    const pTotStr = state.pTotal.toFixed(2);
+    const checkKp = (state.pN2O4 / (state.pNO2 * state.pNO2)).toFixed(2);
+
+    // Le Chatelier qualitative explanation
+    let principleText = "";
+    if (state.volume < 20) {
+      principleText = `體積縮小（${state.volume} mL &lt; 20 mL）→ 壓力瞬間劇增（顏色先變深）→ 平衡向氣體莫耳數較少的方向（<strong>向右生成 N₂O₄</strong>）移動以緩衝壓力，顏色隨後略變淺（但仍比壓縮前深）。`;
+    } else if (state.volume > 20) {
+      principleText = `體積增大（${state.volume} mL &gt; 20 mL）→ 壓力瞬間下降（顏色先變淺）→ 平衡向氣體莫耳數較多的方向（<strong>向左解離為 NO₂</strong>）移動以補充壓力，顏色隨後略變深（但仍比減壓前淺）。`;
+    } else if (state.tempC > 25) {
+      principleText = `溫度升高（${state.tempC} °C &gt; 25 °C）→ 因正反應為放熱（ΔH &lt; 0），升溫使平衡向吸熱方向（<strong>向左生成紅棕色 NO₂</strong>）移動，K<sub>p</sub> 變小，氣體顏色明顯變深。`;
+    } else if (state.tempC < 25) {
+      principleText = `溫度降低（${state.tempC} °C &lt; 25 °C）→ 降溫使平衡向放熱方向（<strong>向右生成無色 N₂O₄</strong>）移動，K<sub>p</sub> 變大，紅棕色明顯變淺。`;
+    } else {
+      principleText = `目前維持在標準對照條件（25 °C、20 mL），正逆反應速率相等，巨觀顏色與分壓維持動態平衡。`;
+    }
+
+    const html = `
+      <div class="formula-step">
+        <strong>① 平衡常數定義式（溫度 T = ${state.tempC} + 273.15 = <span class="formula-highlight">${T_K} K</span>）：</strong><br>
+        K<sub>p</sub> = P(N₂O₄) / [P(NO₂)]² = (${pN2O4Str}) / (${pNO2Str})² = <span class="formula-highlight">${checkKp} atm⁻¹</span>
+      </div>
+      <div class="formula-step">
+        <strong>② 道耳頓分壓定律（體積 V = <span class="formula-highlight">${state.volume} mL</span>）：</strong><br>
+        P<sub>總</sub> = P(NO₂) + P(N₂O₄) = ${pNO2Str} + ${pN2O4Str} = <span class="formula-highlight">${pTotStr} atm</span>
+      </div>
+      <div class="formula-step">
+        <strong>③ 勒沙特列原理移動判讀：</strong><br>
+        <span style="color: #7dd3fc;">${principleText}</span>
+      </div>
+    `;
+    document.getElementById("formulaOutput").innerHTML = html;
+  }
+
+  function handleParameterChange(source) {
+    const prevVol = state.volume;
+    const prevTemp = state.tempC;
+
+    state.volume = Number(document.getElementById("volSlider").value);
+    state.tempC = Number(document.getElementById("tempSlider").value);
+
+    document.getElementById("volDisplay").textContent = `${state.volume.toFixed(1)} mL`;
+    document.getElementById("tempDisplay").textContent = `${state.tempC} °C`;
+
+    const eq = solveEquilibrium(state.volume, state.tempC);
+    state.kp = eq.Kp;
+    state.pTotal = eq.pTotal;
+    state.pNO2 = eq.pNO2;
+    state.pN2O4 = eq.pN2O4;
+    state.eqNo2 = eq.eqNo2;
+    state.eqN2O4 = eq.eqN2O4;
+
+    // Update status banner
+    const banner = document.getElementById("shiftBanner");
+    if (source === "vol") {
+      if (state.volume < prevVol) {
+        banner.innerHTML = `<strong>⚡ 壓縮針筒（體積減小）：</strong><br>瞬間濃度與壓力暴增（顏色驟深）→ 平衡<strong>向右移動</strong>（2NO₂ → N₂O₄），顏色逐漸略微轉淡。`;
+      } else if (state.volume > prevVol) {
+        banner.innerHTML = `<strong>⚡ 拉開針筒（體積增大）：</strong><br>瞬間濃度與壓力下降（顏色驟淡）→ 平衡<strong>向左移動</strong>（N₂O₄ → 2NO₂），顏色逐漸略微回深。`;
+      }
+    } else if (source === "temp") {
+      if (state.tempC > prevTemp) {
+        banner.innerHTML = `<strong>🔥 升高溫度（熱水浴效應）：</strong><br>正反應為放熱，升溫利於吸熱逆反應 → 平衡<strong>向左移動</strong>，紅棕色 NO₂ 增多變深！`;
+      } else if (state.tempC < prevTemp) {
+        banner.innerHTML = `<strong>❄️ 降低溫度（冰水浴效應）：</strong><br>降溫利於放熱正反應 → 平衡<strong>向右移動</strong>，無色 N₂O₄ 增多變淺！`;
+      }
+    }
+
+    updateLiveMetricsDisplay();
+    updateFormulaBreakdown();
+    updateChart();
+  }
+
+  document.getElementById("volSlider").addEventListener("input", () => handleParameterChange("vol"));
+  document.getElementById("tempSlider").addEventListener("input", () => handleParameterChange("temp"));
+
+  function setVolume(v) {
+    document.getElementById("volSlider").value = v;
+    handleParameterChange("vol");
+  }
+
+  function setTemp(t) {
+    document.getElementById("tempSlider").value = t;
+    handleParameterChange("temp");
+  }
+
+  function togglePlay() {
+    state.isPlaying = !state.isPlaying;
+    const btn = document.getElementById("toggleBtn");
+    if (state.isPlaying) {
+      btn.textContent = "⏸ 暫停模擬";
+      btn.className = "action-btn btn-pause";
+    } else {
+      btn.textContent = "▶ 繼續模擬";
+      btn.className = "action-btn btn-play";
+    }
+  }
+
+  function resetExperiment() {
+    document.getElementById("volSlider").value = 20;
+    document.getElementById("tempSlider").value = 25;
+    state.volume = 20;
+    state.tempC = 25;
+    state.isPlaying = true;
+    const btn = document.getElementById("toggleBtn");
+    btn.textContent = "⏸ 暫停模擬";
+    btn.className = "action-btn btn-pause";
+
+    const eq = solveEquilibrium(20, 25);
+    Object.assign(state, eq);
+    state.no2Count = eq.eqNo2;
+    state.n2o4Count = eq.eqN2O4;
+
+    document.getElementById("volDisplay").textContent = "20.0 mL";
+    document.getElementById("tempDisplay").textContent = "25 °C";
+    document.getElementById("shiftBanner").innerHTML = `<strong>目前平衡狀態：</strong><br>已重置為室溫（25 °C）、常壓（20 mL）對照平衡狀態。`;
+
+    initParticles();
+    updateLiveMetricsDisplay();
+    updateFormulaBreakdown();
+    updateChart();
+  }
+
+  // ==========================================
+  // 5. 隨堂檢核區（隨機生成 3 題選擇題與自動批改）
+  // ==========================================
+  const questionPool = [
+    {
+      q: "實驗中將裝有 NO₂ 與 N₂O₄ 平衡混合氣體的針筒浸入「熱水浴」中，達到新平衡時會觀察到什麼現象？",
+      options: ["氣體紅棕色變深，Kp 變小", "氣體紅棕色變淺，Kp 變大", "氣體顏色不變，Kp 不變", "氣體紅棕色變深，Kp 變大"],
+      ans: 0,
+      exp: "2NO₂(g) ⇌ N₂O₄(g) 為放熱反應（ΔH < 0）。浸入熱水浴使溫度升高，平衡向吸熱的逆反應（向左）移動，紅棕色 NO₂ 增加使顏色變深，且平衡常數 Kp 隨升溫而減小。"
+    },
+    {
+      q: "在定溫下，將密閉針筒的活塞「迅速下壓」使氣體體積減半，關於氣體顏色的變化過程何者正確？",
+      options: ["先瞬間變深，隨後略微變淺（但仍比壓縮前深）", "先瞬間變淺，隨後略微變深", "顏色持續一直變淺", "顏色完全沒有任何變化"],
+      ans: 0,
+      exp: "體積減半的瞬間，所有氣體濃度加倍，因此紅棕色「瞬間變深」；接著因總壓增大，平衡向右（氣體莫耳數較少側）移動使 NO₂ 減少，顏色「略微變淺」，但依據勒沙特列原理，無法完全抵銷體積縮小的效應，最終濃度仍高於壓縮前。"
+    },
+    {
+      q: "實驗室製備二氧化氮（NO₂）氣體時，為何將多餘的廢氣導入 1M 氫氧化鈉（NaOH）水溶液中？",
+      options: ["NO₂ 為有毒酸性氣體，可用強鹼吸收避免外洩", "NaOH 可作為催化劑加速雙聚反應", "利用 NaOH 乾燥 NO₂ 氣體中的水氣", "使 NO₂ 還原為無毒的氮氣（N₂）"],
+      ans: 0,
+      exp: "銅與濃/6M 硝酸反應產生的 NO₂ 具有毒性與刺激性，溶於水呈酸性，因此實驗尾氣需通入 NaOH 鹼液進行酸鹼吸收處理，防止毒氣外洩。"
+    },
+    {
+      q: "在定溫下，將針筒活塞「向外拉出」使體積膨脹為原來的 2 倍，達新平衡後，系統內的總分子數與壓力變化為何？",
+      options: ["總分子數增加，系統總壓小於原壓力的 1/2 之上（大於 0.5P₀）", "總分子數減少，系統總壓等於 0.5P₀", "總分子數不變，系統總壓等於 0.5P₀", "總分子數增加，系統總壓大於原壓力 P₀"],
+      ans: 0,
+      exp: "體積變為 2 倍使壓力驟降為 0.5P₀，平衡向氣體莫耳數較多的一方（向左解離：N₂O₄ → 2NO₂）移動，導致氣體總分子數增加，因此最終總壓會略大於 0.5P₀（但仍小於原始壓力 P₀）。"
+    },
+    {
+      q: "若將平衡狀態下的針筒放入「冰水浴」中冷卻，下列關於微觀分子的敘述何者正確？",
+      options: ["每 2 個 NO₂ 單體結合成 1 個 N₂O₄ 雙聚體的趨勢增加", "N₂O₄ 分解成 NO₂ 的速率大於結合速率", "氣體分子的平均動能增加", "系統內的氮原子總數減少"],
+      ans: 0,
+      exp: "冷卻（降溫）利於放熱的正反應進行，平衡向右移動，因此 2 個紅棕色 NO₂ 單體會雙聚結合成 1 個無色 N₂O₄ 分子，使總分子數減少、顏色變淡，但氮原子總數守恆不變。"
+    },
+    {
+      q: "實驗步驟中為何要準備一支裝有等量「空氣」的針筒 C，並與裝有 NO₂ 的針筒 A 一起放入熱水浴中？",
+      options: ["作為對照組，比較化學平衡移動與純氣體熱膨脹的體積差異", "用來稀釋針筒 A 中的二氧化氮濃度", "用來測量熱水浴的精確溫度", "防止針筒 A 在熱水浴中發生爆炸"],
+      ans: 0,
+      exp: "空氣不會發生雙聚平衡移動，僅遵守理想氣體的熱膨脹規律；將針筒 A 與 C 同時置於熱水浴，可對照觀察 A 除了熱膨脹外，還因 N₂O₄ 解離成 2NO₂ 而產生額外的分子數與體積增加。"
+    }
+  ];
+
+  let currentQuestions = [];
+
+  function generateQuiz() {
+    const shuffled = [...questionPool].sort(() => Math.random() - 0.5);
+    currentQuestions = shuffled.slice(0, 3);
+    const container = document.getElementById("quizContainer");
+    container.innerHTML = "";
+
+    currentQuestions.forEach((item, idx) => {
+      const qDiv = document.createElement("div");
+      qDiv.className = "quiz-item";
+      let optsHtml = "";
+      item.options.forEach((opt, oIdx) => {
+        optsHtml += `
+          <label class="quiz-opt-label">
+            <input type="radio" name="q_${idx}" value="${oIdx}">
+            <span>(${String.fromCharCode(65 + oIdx)}) ${opt}</span>
+          </label>
+        `;
+      });
+
+      qDiv.innerHTML = `
+        <div class="quiz-q">${idx + 1}. ${item.q}</div>
+        <div class="quiz-options">${optsHtml}</div>
+        <div class="quiz-feedback" id="fb_${idx}"></div>
+      `;
+      container.appendChild(qDiv);
+    });
+  }
+
+  function gradeQuiz() {
+    currentQuestions.forEach((item, idx) => {
+      const selected = document.querySelector(`input[name="q_${idx}"]:checked`);
+      const fb = document.getElementById(`fb_${idx}`);
+      fb.style.display = "block";
+      const correctLetter = String.fromCharCode(65 + item.ans);
+
+      if (!selected) {
+        fb.className = "quiz-feedback feedback-wrong";
+        fb.innerHTML = `⚠️ 尚未作答！正確答案為 <strong>(${correctLetter})</strong>。<br>解析：${item.exp}`;
+      } else if (Number(selected.value) === item.ans) {
+        fb.className = "quiz-feedback feedback-correct";
+        fb.innerHTML = `✅ 答對了！正確答案為 <strong>(${correctLetter})</strong>。<br>解析：${item.exp}`;
+      } else {
+        fb.className = "quiz-feedback feedback-wrong";
+        fb.innerHTML = `❌ 答錯囉！正確答案為 <strong>(${correctLetter})</strong>。<br>解析：${item.exp}`;
+      }
+    });
+  }
+
+  // Boot up application
+  initParticles();
+  initChart();
+  updateLiveMetricsDisplay();
+  updateFormulaBreakdown();
+  generateQuiz();
+  animate();
+</script>
+
+</body>
+</html>
