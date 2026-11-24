@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>有色陰陽離子電泳移動實驗室 (Migration of Colored Ions)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & Noto Sans TC -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Laboratory Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans TC"', 'Inter', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                        digital: ['"Chakra Petch"', 'monospace']
+                    },
+                    colors: {
+                        lab: {
+                            900: '#0b1120',
+                            800: '#111827',
+                            700: '#1e293b',
+                            600: '#334155',
+                            500: '#475569',
+                            accent: '#38bdf8'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .digital-led {
+            text-shadow: 0 0 10px rgba(56, 189, 248, 0.75), 0 0 20px rgba(56, 189, 248, 0.4);
+        }
+        .digital-led-red {
+            text-shadow: 0 0 10px rgba(239, 68, 68, 0.8), 0 0 20px rgba(239, 68, 68, 0.4);
+        }
+        .glow-red {
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.7);
+        }
+        .glow-black {
+            box-shadow: 0 0 15px rgba(100, 116, 139, 0.7);
+        }
+        .clip-shadow {
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-sky-500 selection:text-white">
+
+    <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-50 px-4 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/20 ring-1 ring-white/20">
+                <i class="fa-solid fa-atom text-white text-xl animate-spin" style="animation-duration: 12s;"></i>
+            </div>
+            <div>
+                <h1 class="text-lg lg:text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                    有色陰陽離子電泳移動虛擬實驗室
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-sky-950 text-sky-400 border border-sky-800/80 font-mono">CHEM-SIM v2.5</span>
+                </h1>
+                <p class="text-xs text-slate-400">Migration of Colored Ions (High School Chemistry Electrophoresis Simulator)</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <!-- Mode Switch Tabs -->
+            <div class="bg-slate-800/90 p-1 rounded-xl border border-slate-700/80 flex text-xs font-medium">
+                <button id="viewMacroBtn" class="px-3.5 py-1.5 rounded-lg bg-sky-600 text-white shadow font-semibold transition-all flex items-center gap-1.5">
+                    <i class="fa-solid fa-eye text-sm"></i>
+                    <span>巨觀濾紙觀察</span>
+                </button>
+                <button id="viewMicroBtn" class="px-3.5 py-1.5 rounded-lg text-slate-300 hover:text-white transition-all flex items-center gap-1.5">
+                    <i class="fa-solid fa-microscope text-sm"></i>
+                    <span>微觀粒子動態 (Canvas)</span>
+                </button>
+            </div>
+
+            <!-- Quiz Modal Trigger -->
+            <button id="openQuizBtn" class="px-3.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 text-xs font-semibold flex items-center gap-1.5 transition">
+                <i class="fa-solid fa-graduation-cap"></i>
+                <span>隨堂測驗</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-5 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Left / Center: Interactive Apparatus Display (8 Cols) -->
+        <section class="lg:col-span-8 flex flex-col gap-4">
+            <!-- Apparatus Stage Frame -->
+            <div class="relative bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-2xl flex flex-col justify-between overflow-hidden">
+                <!-- Ambient Backdrop Grid -->
+                <div class="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px] opacity-40 pointer-events-none"></div>
+
+                <!-- Stage Header Bar: Electrode Status & Field Direction -->
+                <div class="relative z-10 flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80 pb-3 mb-2">
+                    <!-- Left Electrode Status Badge -->
+                    <div id="leftElectrodeBadge" class="flex items-center gap-2 bg-slate-800 px-3 py-1 rounded-lg border border-red-500/40 shadow-sm transition-colors">
+                        <span id="leftPoleSign" class="w-6 h-6 rounded-full bg-red-600 text-white font-black text-sm flex items-center justify-center font-digital shadow">+</span>
+                        <span id="leftPoleText" class="text-xs font-semibold text-red-300">正極 (陽極 Anode)</span>
+                    </div>
+
+                    <!-- Electric Field Indicator Arrow -->
+                    <div class="flex items-center gap-2 bg-slate-950/80 px-4 py-1.5 rounded-full border border-slate-800 shadow-inner">
+                        <span class="text-xs text-slate-400 font-mono">電場方向 (E):</span>
+                        <div id="fieldIndicator" class="flex items-center text-sky-400 text-sm font-bold gap-1 transition-all">
+                            <span id="fieldText">正極 → 負極 (向右)</span>
+                            <i id="fieldArrow" class="fa-solid fa-arrow-right animate-pulse"></i>
+                        </div>
+                    </div>
+
+                    <!-- Right Electrode Status Badge -->
+                    <div id="rightElectrodeBadge" class="flex items-center gap-2 bg-slate-800 px-3 py-1 rounded-lg border border-slate-600 shadow-sm transition-colors">
+                        <span id="rightPoleSign" class="w-6 h-6 rounded-full bg-slate-800 text-slate-200 border border-slate-500 font-black text-sm flex items-center justify-center font-digital shadow">-</span>
+                        <span id="rightPoleText" class="text-xs font-semibold text-slate-300">負極 (陰極 Cathode)</span>
+                    </div>
+                </div>
+
+                <!-- Visual Simulation Canvas Container -->
+                <div class="relative w-full aspect-[16/9] min-h-[340px] max-h-[500px] bg-slate-950 rounded-xl border border-slate-800 shadow-inner overflow-hidden flex items-center justify-center">
+                    <!-- Canvas Element -->
+                    <canvas id="simCanvas" class="w-full h-full block cursor-crosshair"></canvas>
+
+                    <!-- Overlay Ruler Overlay (MM scale) -->
+                    <div class="absolute bottom-2 inset-x-8 h-6 border-t border-slate-600 flex justify-between text-[10px] text-slate-400 font-mono select-none pointer-events-none">
+                        <span>-40mm</span>
+                        <span>-30</span>
+                        <span>-20</span>
+                        <span>-10</span>
+                        <span class="text-amber-400 font-bold">0 (點樣原點)</span>
+                        <span>+10</span>
+                        <span>+20</span>
+                        <span>+30</span>
+                        <span>+40mm</span>
+                    </div>
+
+                    <!-- Micro/Macro View Tag -->
+                    <div class="absolute top-3 left-3 px-2.5 py-1 rounded bg-slate-900/80 border border-slate-700 text-[11px] font-mono text-slate-300 backdrop-blur z-20 flex items-center gap-1.5">
+                        <span id="viewModeIcon" class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                        <span id="viewModeTitle">巨觀電泳濾紙</span>
+                    </div>
+
+                    <!-- Hover Inspector HUD -->
+                    <div id="particleTooltip" class="absolute hidden pointer-events-none bg-slate-900/95 border border-sky-500/50 text-white text-xs px-2.5 py-1.5 rounded-lg shadow-xl backdrop-blur font-mono z-30"></div>
+                </div>
+
+                <!-- Real-time Measurement Bar -->
+                <div class="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 pt-3 border-t border-slate-800">
+                    <div class="bg-slate-950/70 p-2.5 rounded-xl border border-slate-800/80">
+                        <div class="text-[11px] text-slate-400 flex items-center gap-1.5">
+                            <i class="fa-regular fa-clock text-sky-400"></i> 通電累積時間
+                        </div>
+                        <div class="text-lg font-bold font-digital text-sky-300 mt-0.5" id="timerDisplay">00:00.0 s</div>
+                    </div>
+                    <div class="bg-slate-950/70 p-2.5 rounded-xl border border-slate-800/80">
+                        <div class="text-[11px] text-slate-400 flex items-center gap-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span> 陰離子漂移位移
+                        </div>
+                        <div class="text-lg font-bold font-digital text-purple-300 mt-0.5" id="anionDispDisplay">- 0.0 mm</div>
+                    </div>
+                    <div class="bg-slate-950/70 p-2.5 rounded-xl border border-slate-800/80">
+                        <div class="text-[11px] text-slate-400 flex items-center gap-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span> 陽離子漂移位移
+                        </div>
+                        <div class="text-lg font-bold font-digital text-blue-300 mt-0.5" id="cationDispDisplay">+ 0.0 mm</div>
+                    </div>
+                    <div class="bg-slate-950/70 p-2.5 rounded-xl border border-slate-800/80">
+                        <div class="text-[11px] text-slate-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-gauge-high text-amber-400"></i> 平均遷移速率
+                        </div>
+                        <div class="text-lg font-bold font-digital text-amber-300 mt-0.5" id="speedDisplay">0.00 mm/min</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Principle Card Accordion -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-5 text-sm space-y-3">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-bold text-slate-200 flex items-center gap-2 text-base">
+                        <i class="fa-solid fa-lightbulb text-amber-400"></i>
+                        核心實驗觀念與電泳記憶口訣
+                    </h3>
+                    <span class="text-xs bg-slate-800 text-slate-400 px-2 py-0.5 rounded border border-slate-700">高一/國三化學必考</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs leading-relaxed text-slate-300">
+                    <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800/90 space-y-1">
+                        <div class="text-amber-300 font-bold flex items-center gap-1.5">
+                            <i class="fa-solid fa-arrows-split-up-and-left"></i> 靜電相吸排斥定則
+                        </div>
+                        <p>「<strong>同性相斥，異性相吸</strong>」。</p>
+                        <p class="text-slate-400">
+                            • 陰離子帶負電 (－)，受正電極吸引向<strong>正極 (陽極)</strong> 漂移。<br>
+                            • 陽離子帶正電 (＋)，受負電極吸引向<strong>負極 (陰極)</strong> 漂移。
+                        </p>
+                    </div>
+                    <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800/90 space-y-1">
+                        <div class="text-sky-300 font-bold flex items-center gap-1.5">
+                            <i class="fa-solid fa-droplet"></i> 潤濕劑 KNO₃ (硝酸鉀) 的角色
+                        </div>
+                        <p>提供自由移動之解離離子 (K⁺ 與 NO₃⁻)，使乾濾紙轉變為<strong>導電解質通道</strong>，以利通電完成電路迴路。</p>
+                        <p class="text-slate-400">• 無色無干擾：K⁺ 與 NO₃⁻ 皆為無色，不遮蓋樣品色帶痕跡。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right: Laboratory Instruments & Power Supply Control Panel (4 Cols) -->
+        <section class="lg:col-span-4 flex flex-col gap-4">
+            <!-- DC Power Supply Instrument Housing -->
+            <div class="bg-gradient-to-b from-slate-800 to-slate-900 border-2 border-slate-700 rounded-2xl p-4 sm:p-5 shadow-2xl flex flex-col gap-4 relative">
+                <!-- Power Supply Bezel Brand Label -->
+                <div class="flex items-center justify-between border-b border-slate-700/80 pb-2">
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span class="font-digital font-bold text-xs tracking-wider text-slate-300">LAB-DC POWER SUPPLY</span>
+                    </div>
+                    <span class="text-[10px] text-slate-400 font-mono">REGULATED 0-50V</span>
+                </div>
+
+                <!-- Digital Dual LED Displays (Voltage & Current) -->
+                <div class="grid grid-cols-2 gap-3 bg-black/80 p-3 rounded-xl border border-slate-800 shadow-inner">
+                    <!-- Voltage Meter -->
+                    <div class="text-center">
+                        <div class="text-[10px] font-mono text-slate-500 font-semibold mb-0.5">VOLTAGE (V)</div>
+                        <div id="ledVoltage" class="font-digital text-2xl sm:text-3xl font-bold text-sky-400 digital-led">24.0</div>
+                    </div>
+                    <!-- Current Meter (Calculated based on V) -->
+                    <div class="text-center">
+                        <div class="text-[10px] font-mono text-slate-500 font-semibold mb-0.5">CURRENT (mA)</div>
+                        <div id="ledCurrent" class="font-digital text-2xl sm:text-3xl font-bold text-amber-400">12.5</div>
+                    </div>
+                </div>
+
+                <!-- Master Controls (Power Switch & Polarity Reverse) -->
+                <div class="grid grid-cols-2 gap-2.5">
+                    <button id="powerBtn" class="py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg transition active:scale-95 ring-2 ring-emerald-400/40">
+                        <i class="fa-solid fa-power-off text-base"></i>
+                        <span id="powerBtnText">通電運轉 (ON)</span>
+                    </button>
+                    <button id="polarityBtn" class="py-2.5 px-3 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-100 font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 shadow transition active:scale-95 border border-slate-600">
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                        <span>反轉極性 (+/-)</span>
+                    </button>
+                </div>
+
+                <!-- Voltage Slider Knob -->
+                <div class="space-y-1.5 bg-slate-950/40 p-3 rounded-xl border border-slate-800">
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="text-slate-300 font-medium">輸出直流電壓調節：</span>
+                        <span class="font-mono font-bold text-sky-400" id="sliderVoltLabel">24 V</span>
+                    </div>
+                    <input type="range" id="voltageSlider" min="0" max="50" value="24" step="1" 
+                           class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-sky-500 focus:outline-none">
+                    <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+                        <span>0V (靜止)</span>
+                        <span>25V (標準)</span>
+                        <span>50V (高速)</span>
+                    </div>
+                </div>
+
+                <!-- Simulation Speed Multiplier -->
+                <div class="flex items-center justify-between text-xs bg-slate-950/40 px-3 py-2 rounded-xl border border-slate-800">
+                    <span class="text-slate-300 font-medium"><i class="fa-solid fa-forward-step text-slate-400"></i> 時間演進加速：</span>
+                    <div class="flex gap-1" id="speedButtonGroup">
+                        <button data-speed="1" class="speed-btn px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-sky-600 text-white">1x</button>
+                        <button data-speed="3" class="speed-btn px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-slate-800 hover:bg-slate-700 text-slate-300">3x</button>
+                        <button data-speed="10" class="speed-btn px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-slate-800 hover:bg-slate-700 text-slate-300">10x</button>
+                    </div>
+                </div>
+
+                <!-- Reset & Clear Button -->
+                <div class="flex gap-2">
+                    <button id="resetExpBtn" class="flex-1 py-2 px-3 rounded-xl bg-slate-700/80 hover:bg-rose-900/60 hover:text-rose-200 text-slate-300 text-xs font-medium border border-slate-600 transition flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-rotate-left"></i> 重置濾紙與實驗
+                    </button>
+                    <button id="addDropBtn" class="py-2 px-3 rounded-xl bg-slate-700/80 hover:bg-slate-600 text-sky-300 text-xs font-medium border border-slate-600 transition" title="於中央重新點加樣品">
+                        <i class="fa-solid fa-eyedropper"></i> 補滴樣品
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sample Electrolyte Selector Card -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-3">
+                <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+                    <i class="fa-solid fa-flask-vial text-sky-400"></i>
+                    待測電解質樣品組 (Colored Solutes)
+                </h3>
+                <div class="space-y-2" id="sampleOptionList">
+                    <!-- Option 1: KMnO4 + CuSO4 -->
+                    <label class="sample-label flex items-start gap-3 p-2.5 rounded-xl border border-sky-500/50 bg-sky-950/20 cursor-pointer transition hover:bg-slate-800">
+                        <input type="radio" name="sampleSelect" value="kmn_cu" checked class="mt-1 accent-sky-500">
+                        <div class="text-xs">
+                            <div class="font-bold text-white flex items-center gap-1.5">
+                                KMnO₄ + CuSO₄ 混合液
+                                <span class="text-[10px] bg-sky-900/60 text-sky-300 px-1.5 py-0.5 rounded">經典國高二</span>
+                            </div>
+                            <div class="text-slate-400 mt-1 flex flex-wrap gap-2">
+                                <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-purple-500 inline-block"></span> 紫色：MnO₄⁻ (過錳酸根)</span>
+                                <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-sky-500 inline-block"></span> 藍色：Cu²⁺ (銅離子)</span>
+                            </div>
+                        </div>
+                    </label>
+
+                    <!-- Option 2: K2Cr2O7 + CuSO4 -->
+                    <label class="sample-label flex items-start gap-3 p-2.5 rounded-xl border border-slate-800 hover:border-slate-700 bg-slate-950/40 cursor-pointer transition hover:bg-slate-800">
+                        <input type="radio" name="sampleSelect" value="cr_cu" class="mt-1 accent-sky-500">
+                        <div class="text-xs">
+                            <div class="font-bold text-white">K₂Cr₂O₇ + CuSO₄ 混合液</div>
+                            <div class="text-slate-400 mt-1 flex flex-wrap gap-2">
+                                <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-orange-500 inline-block"></span> 橙黃色：Cr₂O₇²⁻ (二鉻酸根)</span>
+                                <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-sky-500 inline-block"></span> 藍色：Cu²⁺ (銅離子)</span>
+                            </div>
+                        </div>
+                    </label>
+
+                    <!-- Option 3: FeCl3 + KMnO4 -->
+                    <label class="sample-label flex items-start gap-3 p-2.5 rounded-xl border border-slate-800 hover:border-slate-700 bg-slate-950/40 cursor-pointer transition hover:bg-slate-800">
+                        <input type="radio" name="sampleSelect" value="fe_kmn" class="mt-1 accent-sky-500">
+                        <div class="text-xs">
+                            <div class="font-bold text-white">FeCl₃ + KMnO₄ 混合液</div>
+                            <div class="text-slate-400 mt-1 flex flex-wrap gap-2">
+                                <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-600 inline-block"></span> 黃褐色：Fe³⁺ (鐵離子)</span>
+                                <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-purple-500 inline-block"></span> 紫色：MnO₄⁻ (過錳酸根)</span>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Electrolyte paper note -->
+                <div class="text-[11px] text-slate-400 bg-slate-950/60 p-2.5 rounded-xl border border-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-info text-sky-400"></i>
+                    <span>潤濕濾紙底液：0.5 M 硝酸鉀 (KNO₃) 水溶液</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Interactive Quiz Dialog Modal -->
+    <div id="quizModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
+            <button id="closeQuizBtn" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="flex items-center gap-2.5 text-amber-400 font-bold text-lg mb-4">
+                <i class="fa-solid fa-circle-question"></i>
+                <span>離子移動實驗觀念快問快答</span>
+            </div>
+
+            <div id="quizContent" class="space-y-4">
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                    <div class="text-xs font-mono text-sky-400 font-semibold mb-1" id="quizQuestionNumber">題目 1 / 3</div>
+                    <p class="text-sm text-slate-200 font-medium" id="quizQuestionText">在以 KNO₃ 潤濕的濾紙中央滴加 KMnO₄ 與 CuSO₄ 混合液後通電，為什麼紫紅色的過錳酸根離子 (MnO₄⁻) 會往正極移動？</p>
+                </div>
+
+                <div class="space-y-2" id="quizOptionsContainer">
+                    <!-- Dynamically generated quiz options -->
+                </div>
+
+                <div id="quizFeedback" class="hidden p-3 rounded-xl text-xs font-medium"></div>
+
+                <div class="flex justify-between items-center pt-2">
+                    <span class="text-xs text-slate-400" id="quizScoreText">答對題數：0</span>
+                    <button id="nextQuizBtn" class="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold transition">下一題</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast Popup -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-16 opacity-0 transition-all duration-300 bg-slate-800 border border-slate-700 text-white text-xs px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2 pointer-events-none">
+        <i id="toastIcon" class="fa-solid fa-info-circle text-sky-400"></i>
+        <span id="toastMsg">通知訊息</span>
+    </div>
+
+    <script>
+        /* ========================================================
+           CHEMISTRY SIMULATION ENGINE & UI LOGIC
+           ======================================================== */
+
+        // Laboratory Simulation State
+        const state = {
+            isRunning: true,
+            voltage: 24,           // 0 to 50 Volts
+            polarity: 1,           // 1: Left Positive (+), Right Negative (-); -1: Left (-), Right (+)
+            timeElapsed: 0,        // Seconds
+            speedMultiplier: 1,    // 1x, 3x, 10x
+            viewMode: 'macro',     // 'macro' or 'micro'
+            sampleType: 'kmn_cu',  // Selected chemical set
+
+            // Macroscopic stain band positions (displacement in mm, centered at 0)
+            bands: {
+                anion: 0,          // Negative ion displacement
+                cation: 0,         // Positive ion displacement
+                spread: 3.5        // Gaussian diffusion width
+            },
+
+            // Microscopic ion particle pool
+            particles: [],
+            maxParticles: 160
+        };
+
+        // Chemical Species Profiles
+        const sampleConfigs = {
+            'kmn_cu': {
+                name: 'KMnO₄ + CuSO₄',
+                anion: { formula: 'MnO₄⁻', name: '過錳酸根', color: '#c026d3', hexRgb: [192, 38, 211], charge: -1, radius: 9, mobility: 1.05 },
+                cation: { formula: 'Cu²⁺', name: '銅離子', color: '#0284c7', hexRgb: [2, 132, 199], charge: 2, radius: 8, mobility: 0.95 },
+                background: [
+                    { formula: 'K⁺', color: 'rgba(203, 213, 225, 0.4)', charge: 1, radius: 5, mobility: 1.1 },
+                    { formula: 'NO₃⁻', color: 'rgba(203, 213, 225, 0.4)', charge: -1, radius: 6, mobility: 1.0 }
+                ]
+            },
+            'cr_cu': {
+                name: 'K₂Cr₂O₇ + CuSO₄',
+                anion: { formula: 'Cr₂O₇²⁻', name: '二鉻酸根', color: '#ea580c', hexRgb: [234, 88, 12], charge: -2, radius: 10, mobility: 0.9 },
+                cation: { formula: 'Cu²⁺', name: '銅離子', color: '#0284c7', hexRgb: [2, 132, 199], charge: 2, radius: 8, mobility: 0.95 },
+                background: [
+                    { formula: 'K⁺', color: 'rgba(203, 213, 225, 0.4)', charge: 1, radius: 5, mobility: 1.1 },
+                    { formula: 'NO₃⁻', color: 'rgba(203, 213, 225, 0.4)', charge: -1, radius: 6, mobility: 1.0 }
+                ]
+            },
+            'fe_kmn': {
+                name: 'FeCl₃ + KMnO₄',
+                anion: { formula: 'MnO₄⁻', name: '過錳酸根', color: '#c026d3', hexRgb: [192, 38, 211], charge: -1, radius: 9, mobility: 1.05 },
+                cation: { formula: 'Fe³⁺', name: '鐵(III)離子', color: '#b45309', hexRgb: [180, 83, 9], charge: 3, radius: 8, mobility: 0.85 },
+                background: [
+                    { formula: 'K⁺', color: 'rgba(203, 213, 225, 0.4)', charge: 1, radius: 5, mobility: 1.1 },
+                    { formula: 'NO₃⁻', color: 'rgba(203, 213, 225, 0.4)', charge: -1, radius: 6, mobility: 1.0 }
+                ]
+            }
+        };
+
+        // DOM Elements
+        const canvas = document.getElementById('simCanvas');
+        const ctx = canvas.getContext('2d');
+        const powerBtn = document.getElementById('powerBtn');
+        const powerBtnText = document.getElementById('powerBtnText');
+        const polarityBtn = document.getElementById('polarityBtn');
+        const voltageSlider = document.getElementById('voltageSlider');
+        const sliderVoltLabel = document.getElementById('sliderVoltLabel');
+        const ledVoltage = document.getElementById('ledVoltage');
+        const ledCurrent = document.getElementById('ledCurrent');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const anionDispDisplay = document.getElementById('anionDispDisplay');
+        const cationDispDisplay = document.getElementById('cationDispDisplay');
+        const speedDisplay = document.getElementById('speedDisplay');
+        const fieldText = document.getElementById('fieldText');
+        const fieldArrow = document.getElementById('fieldArrow');
+        const leftPoleSign = document.getElementById('leftPoleSign');
+        const leftPoleText = document.getElementById('leftPoleText');
+        const leftElectrodeBadge = document.getElementById('leftElectrodeBadge');
+        const rightPoleSign = document.getElementById('rightPoleSign');
+        const rightPoleText = document.getElementById('rightPoleText');
+        const rightElectrodeBadge = document.getElementById('rightElectrodeBadge');
+        const viewMacroBtn = document.getElementById('viewMacroBtn');
+        const viewMicroBtn = document.getElementById('viewMicroBtn');
+        const viewModeTitle = document.getElementById('viewModeTitle');
+        const resetExpBtn = document.getElementById('resetExpBtn');
+        const addDropBtn = document.getElementById('addDropBtn');
+        const particleTooltip = document.getElementById('particleTooltip');
+
+        // High-DPI Canvas Resizing
+        function handleResize() {
+            const rect = canvas.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.resetTransform?.();
+            ctx.scale(dpr, dpr);
+        }
+        window.addEventListener('resize', handleResize);
+
+        // Toast Helper
+        function showToast(msg, icon = 'fa-info-circle') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            const toastIcon = document.getElementById('toastIcon');
+            toastMsg.textContent = msg;
+            toastIcon.className = `fa-solid ${icon} text-sky-400`;
+            toast.classList.remove('translate-y-16', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-16', 'opacity-0');
+            }, 2500);
+        }
+
+        // Particle System Initializer
+        function initParticles() {
+            state.particles = [];
+            const config = sampleConfigs[state.sampleType];
+
+            // Center spot initial standard deviation
+            const centerX = canvas.getBoundingClientRect().width / 2;
+            const centerY = canvas.getBoundingClientRect().height / 2;
+
+            // Generate Colored Sample Anions
+            for (let i = 0; i < 40; i++) {
+                state.particles.push(createParticle(centerX, centerY, config.anion, true));
+            }
+            // Generate Colored Sample Cations
+            for (let i = 0; i < 40; i++) {
+                state.particles.push(createParticle(centerX, centerY, config.cation, true));
+            }
+            // Generate Supporting Electrolyte Background Ions (K+ and NO3-)
+            for (let i = 0; i < 35; i++) {
+                const rx = 40 + Math.random() * (canvas.getBoundingClientRect().width - 80);
+                const ry = 40 + Math.random() * (canvas.getBoundingClientRect().height - 80);
+                state.particles.push(createParticle(rx, ry, config.background[0], false));
+                state.particles.push(createParticle(rx, ry, config.background[1], false));
+            }
+        }
+
+        function createParticle(cx, cy, spec, isSample = false) {
+            const angle = Math.random() * Math.PI * 2;
+            const dist = isSample ? Math.abs(gaussianRandom()) * 18 : 0;
+            return {
+                x: cx + Math.cos(angle) * dist,
+                y: cy + Math.sin(angle) * dist * 0.7,
+                vx: (Math.random() - 0.5) * 0.8,
+                vy: (Math.random() - 0.5) * 0.8,
+                radius: spec.radius || 7,
+                charge: spec.charge,
+                formula: spec.formula,
+                color: spec.color,
+                mobility: spec.mobility || 1.0,
+                isSample: isSample
+            };
+        }
+
+        function gaussianRandom() {
+            let u = 0, v = 0;
+            while(u === 0) u = Math.random();
+            while(v === 0) v = Math.random();
+            return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+        }
+
+        // Simulation Reset
+        function resetSimulation() {
+            state.timeElapsed = 0;
+            state.bands.anion = 0;
+            state.bands.cation = 0;
+            state.bands.spread = 3.5;
+            initParticles();
+            updateTelemetryDisplay();
+            showToast('實驗已重置，濾紙重新鋪設潤濕完成。', 'fa-rotate-left');
+        }
+
+        function updatePhysics(dt) {
+            if (!state.isRunning) return;
+
+            const effectiveDt = dt * state.speedMultiplier;
+            state.timeElapsed += effectiveDt;
+
+            // Electric Field Vector E (arbitrary units: positive means pointing Right)
+            // Polarity 1: Left is +, Right is -, E points Left -> Right (+ to -)
+            const fieldStrength = (state.voltage / 50.0) * state.polarity;
+
+            // Macro Migration Rates (mm per second)
+            // Anion (-q) experiences force F = q * E -> towards positive pole (-polarity)
+            const baseAnionMobility = sampleConfigs[state.sampleType].anion.mobility;
+            const baseCationMobility = sampleConfigs[state.sampleType].cation.mobility;
+
+            // In our coordinate system:
+            // Polarity = 1 (Left +, Right -):
+            // Anion drifts to Left (negative mm)
+            // Cation drifts to Right (positive mm)
+            const anionDriftVelocity = -1 * state.polarity * (state.voltage / 25) * 0.08 * baseAnionMobility;
+            const cationDriftVelocity = 1 * state.polarity * (state.voltage / 25) * 0.075 * baseCationMobility;
+
+            // Update Macroscopic stain centers
+            state.bands.anion += anionDriftVelocity * effectiveDt;
+            state.bands.cation += cationDriftVelocity * effectiveDt;
+            // Diffusion expansion over time (Fick's law simulation)
+            state.bands.spread = 3.5 + Math.sqrt(state.timeElapsed * 0.15);
+
+            // Clamp max physical boundaries on filter paper (-40mm to +40mm)
+            state.bands.anion = Math.max(-42, Math.min(42, state.bands.anion));
+            state.bands.cation = Math.max(-42, Math.min(42, state.bands.cation));
+
+            // Micro Particle Physics (Brownian Motion + Electric Drift)
+            const width = canvas.getBoundingClientRect().width;
+            const height = canvas.getBoundingClientRect().height;
+            const leftBound = 40;
+            const rightBound = width - 40;
+            const topBound = 35;
+            const bottomBound = height - 35;
+
+            // Drift force multiplier for particles
+            const driftFactor = fieldStrength * 38;
+
+            state.particles.forEach(p => {
+                // 1. Brownian Thermal collisions (Random Walk)
+                const thermalForce = 0.9;
+                p.vx += (Math.random() - 0.5) * thermalForce;
+                p.vy += (Math.random() - 0.5) * thermalForce;
+
+                // 2. Electric Field force F = q * E
+                if (state.voltage > 0) {
+                    const driftAx = (p.charge * driftFactor * p.mobility) * 0.06;
+                    p.vx += driftAx;
+                }
+
+                // 3. Fluid drag dampening (in viscous electrolyte water film)
+                p.vx *= 0.88;
+                p.vy *= 0.88;
+
+                // Move position
+                p.x += p.vx * (effectiveDt * 3.5);
+                p.y += p.vy * (effectiveDt * 3.5);
+
+                // Boundary containment
+                if (p.x < leftBound) { p.x = leftBound; p.vx *= -0.4; }
+                if (p.x > rightBound) { p.x = rightBound; p.vx *= -0.4; }
+                if (p.y < topBound) { p.y = topBound; p.vy *= -0.4; }
+                if (p.y > bottomBound) { p.y = bottomBound; p.vy *= -0.4; }
+            });
+        }
+
+        function render() {
+            const rect = canvas.getBoundingClientRect();
+            const w = rect.width;
+            const h = rect.height;
+
+            // Clear Background
+            ctx.fillStyle = '#020617';
+            ctx.fillRect(0, 0, w, h);
+
+            if (state.viewMode === 'macro') {
+                renderMacroView(w, h);
+            } else {
+                renderMicroView(w, h);
+            }
+
+            // Draw Voltage Status Watermark & Ground
+            renderOverlays(w, h);
+        }
+
+        // Render Macro Realistic Paper & Electrodes
+        function renderMacroView(w, h) {
+            const paperX = 50;
+            const paperY = 45;
+            const paperW = w - 100;
+            const paperH = h - 90;
+            const originX = w / 2;
+            const originY = h / 2;
+            const mmScale = paperW / 88; // 88mm visible paper scale
+
+            // 1. Glass Plate Base
+            ctx.save();
+            ctx.fillStyle = '#0f172a';
+            ctx.shadowColor = 'rgba(0,0,0,0.8)';
+            ctx.shadowBlur = 15;
+            ctx.fillRect(paperX - 8, paperY - 8, paperW + 16, paperH + 16);
+            ctx.restore();
+
+            // 2. Wet Filter Paper Texture
+            const paperGrad = ctx.createLinearGradient(paperX, paperY, paperX + paperW, paperY);
+            paperGrad.addColorStop(0, '#f1f5f9');
+            paperGrad.addColorStop(0.5, '#e2e8f0');
+            paperGrad.addColorStop(1, '#f1f5f9');
+            ctx.fillStyle = paperGrad;
+            ctx.fillRect(paperX, paperY, paperW, paperH);
+
+            // Subtle paper moisture sheen
+            ctx.fillStyle = 'rgba(56, 189, 248, 0.08)';
+            ctx.fillRect(paperX, paperY, paperW, paperH);
+
+            // Paper Center Reference Line (Pencil marking)
+            ctx.beginPath();
+            ctx.strokeStyle = '#94a3b8';
+            ctx.setLineDash([4, 4]);
+            ctx.lineWidth = 1.5;
+            ctx.moveTo(originX, paperY);
+            ctx.lineTo(originX, paperY + paperH);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // 3. Colored Bands Migration Rendering
+            const cfg = sampleConfigs[state.sampleType];
+
+            // Negative Ion Band (Anion)
+            const anionCenterX = originX + (state.bands.anion * mmScale);
+            const anionSigma = state.bands.spread * (mmScale * 0.45);
+            drawGaussianBand(anionCenterX, originY, anionSigma, paperH * 0.35, cfg.anion.hexRgb);
+
+            // Positive Ion Band (Cation)
+            const cationCenterX = originX + (state.bands.cation * mmScale);
+            const cationSigma = state.bands.spread * (mmScale * 0.45);
+            drawGaussianBand(cationCenterX, originY, cationSigma, paperH * 0.35, cfg.cation.hexRgb);
+
+            // Initial Sample Mixture Deposit Point (fades slightly as ions migrate out)
+            const remainingCenterDensity = Math.max(0.15, 1 - (state.timeElapsed * 0.03));
+            const centerGrad = ctx.createRadialGradient(originX, originY, 2, originX, originY, 14);
+            centerGrad.addColorStop(0, `rgba(88, 28, 135, ${remainingCenterDensity * 0.8})`);
+            centerGrad.addColorStop(1, 'rgba(88, 28, 135, 0)');
+            ctx.fillStyle = centerGrad;
+            ctx.beginPath();
+            ctx.arc(originX, originY, 14, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 4. Crocodile Clips & Metal Electrodes at sides
+            drawElectrodeClip(paperX, originY, paperH, state.polarity === 1 ? 'red' : 'black', 'LEFT');
+            drawElectrodeClip(paperX + paperW, originY, paperH, state.polarity === 1 ? 'black' : 'red', 'RIGHT');
+        }
+
+        // Helper to draw realistic diffuse colored ion cloud
+        function drawGaussianBand(cx, cy, rx, ry, [r, g, b]) {
+            ctx.save();
+            const grad = ctx.createRadialGradient(cx, cy, 3, cx, cy, rx * 2.2);
+            grad.addColorStop(0, `rgba(${r}, ${g}, ${b}, 0.85)`);
+            grad.addColorStop(0.3, `rgba(${r}, ${g}, ${b}, 0.6)`);
+            grad.addColorStop(0.7, `rgba(${r}, ${g}, ${b}, 0.25)`);
+            grad.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
+
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.ellipse(cx, cy, rx * 2.2, ry, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        // Draw Laboratory Crocodile Clips & Power Leads
+        function drawElectrodeClip(x, y, h, colorType, side) {
+            const isRed = colorType === 'red';
+            const wireColor = isRed ? '#ef4444' : '#334155';
+            const metalColor = '#cbd5e1';
+
+            ctx.save();
+            // Metal contact plate
+            ctx.fillStyle = metalColor;
+            ctx.strokeStyle = '#475569';
+            ctx.lineWidth = 1;
+            const barW = 10;
+            const barH = h * 0.7;
+            const drawX = side === 'LEFT' ? x - barW : x;
+            ctx.fillRect(drawX, y - barH / 2, barW, barH);
+            ctx.strokeRect(drawX, y - barH / 2, barW, barH);
+
+            // Insulated Clip Body
+            ctx.fillStyle = wireColor;
+            const clipW = 22;
+            const clipH = 34;
+            const clipX = side === 'LEFT' ? x - barW - clipW + 4 : x + barW - 4;
+            ctx.shadowColor = isRed ? 'rgba(239, 68, 68, 0.5)' : 'rgba(0, 0, 0, 0.6)';
+            ctx.shadowBlur = 10;
+            ctx.fillRect(clipX, y - clipH / 2, clipW, clipH);
+
+            // Lead Wire curling away
+            ctx.shadowBlur = 0;
+            ctx.beginPath();
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = wireColor;
+            ctx.moveTo(clipX + (side === 'LEFT' ? 0 : clipW), y);
+            ctx.bezierCurveTo(
+                clipX + (side === 'LEFT' ? -30 : 30), y - 30,
+                clipX + (side === 'LEFT' ? -40 : 40), 10,
+                side === 'LEFT' ? 10 : canvas.width - 10, 10
+            );
+            ctx.stroke();
+
+            // Polar Sign Label
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 13px Chakra Petch';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(isRed ? '+' : '-', clipX + clipW / 2, y);
+
+            ctx.restore();
+        }
+
+        // Render Microscopic Ion Particle Simulation
+        function renderMicroView(w, h) {
+            // Chamber Grid & Water molecule matrix background
+            ctx.fillStyle = '#090d16';
+            ctx.fillRect(0, 0, w, h);
+
+            // Draw electric field vectors in the background
+            if (state.voltage > 0) {
+                const arrowSpacing = 65;
+                ctx.strokeStyle = 'rgba(56, 189, 248, 0.12)';
+                ctx.lineWidth = 1.2;
+                const dir = state.polarity; // 1 = Left to Right, -1 = Right to Left
+
+                for (let y = 50; y < h - 40; y += arrowSpacing) {
+                    for (let x = 60; x < w - 60; x += arrowSpacing) {
+                        ctx.beginPath();
+                        ctx.moveTo(x - 12 * dir, y);
+                        ctx.lineTo(x + 12 * dir, y);
+                        // arrowhead
+                        ctx.lineTo(x + 5 * dir, y - 4);
+                        ctx.moveTo(x + 12 * dir, y);
+                        ctx.lineTo(x + 5 * dir, y + 4);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            // Draw Microscopic Particles
+            state.particles.forEach(p => {
+                ctx.save();
+                // Particle Body
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+
+                if (p.isSample) {
+                    // Hydration Glow Shell
+                    ctx.shadowColor = p.color;
+                    ctx.shadowBlur = 12;
+                    ctx.fillStyle = p.color;
+                } else {
+                    ctx.shadowBlur = 0;
+                    ctx.fillStyle = p.color;
+                }
+                ctx.fill();
+
+                // Ionic Formula Label
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = '#ffffff';
+                ctx.font = `bold ${p.radius >= 8 ? 9 : 7}px 'JetBrains Mono', monospace`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(p.formula, p.x, p.y);
+
+                // Small drift velocity vector trace
+                if (state.voltage > 5) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = p.charge < 0 ? 'rgba(232, 121, 249, 0.5)' : 'rgba(56, 189, 248, 0.5)';
+                    ctx.lineWidth = 1;
+                    ctx.moveTo(p.x, p.y);
+                    ctx.lineTo(p.x + p.vx * 4, p.y + p.vy * 4);
+                    ctx.stroke();
+                }
+
+                ctx.restore();
+            });
+
+            // Micro Legend in Corner
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 1;
+            ctx.fillRect(15, h - 55, 310, 42);
+            ctx.strokeRect(15, h - 55, 310, 42);
+
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '10px "Noto Sans TC"';
+            ctx.textAlign = 'left';
+            ctx.fillText('💡 微觀視野：粒子呈現布朗運動 (熱運動碰撞) 疊加電場定向漂移', 25, h - 38);
+            ctx.fillText('• 較小半透明球為背景電解質 KNO₃ (K⁺, NO₃⁻)', 25, h - 22);
+        }
+
+        // Overlay status indicators
+        function renderOverlays(w, h) {
+            // Live Time Indicator on bottom left
+            ctx.fillStyle = '#64748b';
+            ctx.font = '11px "JetBrains Mono"';
+            ctx.textAlign = 'right';
+            ctx.fillText(`Scale: 1.0mm/div | State: ${state.isRunning ? 'RUNNING' : 'PAUSED'}`, w - 18, h - 12);
+        }
+
+        // UI Telemetry and Control Synchronizers
+        function updateTelemetryDisplay() {
+            // Timer Display
+            const mins = Math.floor(state.timeElapsed / 60);
+            const secs = (state.timeElapsed % 60).toFixed(1);
+            timerDisplay.textContent = `${mins.toString().padStart(2, '0')}:${secs.padStart(4, '0')} s`;
+
+            // Displacement Displays
+            const anionMm = state.bands.anion;
+            const cationMm = state.bands.cation;
+            anionDispDisplay.textContent = `${anionMm >= 0 ? '+' : ''}${anionMm.toFixed(1)} mm`;
+            cationDispDisplay.textContent = `${cationMm >= 0 ? '+' : ''}${cationMm.toFixed(1)} mm`;
+
+            // Calculate drift speed (mm / min)
+            if (state.timeElapsed > 1.5) {
+                const totalDisp = Math.abs(anionMm) + Math.abs(cationMm);
+                const speed = (totalDisp / (state.timeElapsed / 60)).toFixed(2);
+                speedDisplay.textContent = `${speed} mm/min`;
+            } else {
+                speedDisplay.textContent = `0.00 mm/min`;
+            }
+
+            // Power Supply Gauges
+            ledVoltage.textContent = state.voltage.toFixed(1);
+            // Ohm's law simulation with solution resistance
+            const mockCurrent = state.voltage > 0 ? (state.voltage * 0.52).toFixed(1) : '0.0';
+            ledCurrent.textContent = mockCurrent;
+            sliderVoltLabel.textContent = `${state.voltage} V`;
+
+            // Update Field text and signs
+            updateFieldBadges();
+        }
+
+        function updateFieldBadges() {
+            if (state.polarity === 1) {
+                // Left is +, Right is -
+                leftPoleSign.textContent = '+';
+                leftPoleSign.className = 'w-6 h-6 rounded-full bg-red-600 text-white font-black text-sm flex items-center justify-center font-digital shadow';
+                leftPoleText.textContent = '正極 (陽極 Anode)';
+                leftElectrodeBadge.className = 'flex items-center gap-2 bg-slate-800 px-3 py-1 rounded-lg border border-red-500/50 shadow-sm';
+
+                rightPoleSign.textContent = '-';
+                rightPoleSign.className = 'w-6 h-6 rounded-full bg-slate-800 text-slate-200 border border-slate-500 font-black text-sm flex items-center justify-center font-digital shadow';
+                rightPoleText.textContent = '負極 (陰極 Cathode)';
+                rightElectrodeBadge.className = 'flex items-center gap-2 bg-slate-800 px-3 py-1 rounded-lg border border-slate-600 shadow-sm';
+
+                fieldText.textContent = '正極 → 負極 (向右)';
+                fieldArrow.className = 'fa-solid fa-arrow-right animate-pulse';
+            } else {
+                // Left is -, Right is +
+                leftPoleSign.textContent = '-';
+                leftPoleSign.className = 'w-6 h-6 rounded-full bg-slate-800 text-slate-200 border border-slate-500 font-black text-sm flex items-center justify-center font-digital shadow';
+                leftPoleText.textContent = '負極 (陰極 Cathode)';
+                leftElectrodeBadge.className = 'flex items-center gap-2 bg-slate-800 px-3 py-1 rounded-lg border border-slate-600 shadow-sm';
+
+                rightPoleSign.textContent = '+';
+                rightPoleSign.className = 'w-6 h-6 rounded-full bg-red-600 text-white font-black text-sm flex items-center justify-center font-digital shadow';
+                rightPoleText.textContent = '正極 (陽極 Anode)';
+                rightElectrodeBadge.className = 'flex items-center gap-2 bg-slate-800 px-3 py-1 rounded-lg border border-red-500/50 shadow-sm';
+
+                fieldText.textContent = '正極 → 負極 (向左)';
+                fieldArrow.className = 'fa-solid fa-arrow-left animate-pulse';
+            }
+        }
+
+        // Event Listeners for Controls
+        powerBtn.addEventListener('click', () => {
+            state.isRunning = !state.isRunning;
+            if (state.isRunning) {
+                powerBtn.className = 'py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg transition active:scale-95 ring-2 ring-emerald-400/40';
+                powerBtnText.textContent = '通電運轉 (ON)';
+                showToast('電源已開啟，離子開始在電場中定向漂移。', 'fa-bolt');
+            } else {
+                powerBtn.className = 'py-2.5 px-3 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow transition active:scale-95';
+                powerBtnText.textContent = '電源切斷 (PAUSE)';
+                showToast('電源已暫停，電場消失（維持熱運動）。', 'fa-pause');
+            }
+        });
+
+        polarityBtn.addEventListener('click', () => {
+            state.polarity *= -1;
+            updateFieldBadges();
+            showToast(`已反轉電極極性！電場方向已變更為：${state.polarity === 1 ? '向右' : '向左'}。`, 'fa-arrows-rotate');
+        });
+
+        voltageSlider.addEventListener('input', (e) => {
+            state.voltage = parseFloat(e.target.value);
+            updateTelemetryDisplay();
+        });
+
+        // Speed Multipliers
+        document.querySelectorAll('.speed-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.speed-btn').forEach(b => {
+                    b.classList.remove('bg-sky-600', 'text-white');
+                    b.classList.add('bg-slate-800', 'text-slate-300');
+                });
+                btn.classList.add('bg-sky-600', 'text-white');
+                btn.classList.remove('bg-slate-800', 'text-slate-300');
+                state.speedMultiplier = parseFloat(btn.getAttribute('data-speed'));
+                showToast(`模擬速率切換為 ${state.speedMultiplier}x 倍速。`);
+            });
+        });
+
+        // Mode Switching: Macro vs Micro
+        viewMacroBtn.addEventListener('click', () => {
+            state.viewMode = 'macro';
+            viewMacroBtn.className = 'px-3.5 py-1.5 rounded-lg bg-sky-600 text-white shadow font-semibold transition-all flex items-center gap-1.5';
+            viewMicroBtn.className = 'px-3.5 py-1.5 rounded-lg text-slate-300 hover:text-white transition-all flex items-center gap-1.5';
+            viewModeTitle.textContent = '巨觀電泳濾紙';
+        });
+
+        viewMicroBtn.addEventListener('click', () => {
+            state.viewMode = 'micro';
+            viewMicroBtn.className = 'px-3.5 py-1.5 rounded-lg bg-sky-600 text-white shadow font-semibold transition-all flex items-center gap-1.5';
+            viewMacroBtn.className = 'px-3.5 py-1.5 rounded-lg text-slate-300 hover:text-white transition-all flex items-center gap-1.5';
+            viewModeTitle.textContent = '微觀粒子碰撞漂移';
+        });
+
+        // Sample Solution Change
+        document.querySelectorAll('input[name="sampleSelect"]').forEach(input => {
+            input.addEventListener('change', (e) => {
+                state.sampleType = e.target.value;
+                // Highlight borders
+                document.querySelectorAll('.sample-label').forEach(label => {
+                    label.classList.remove('border-sky-500/50', 'bg-sky-950/20');
+                    label.classList.add('border-slate-800', 'bg-slate-950/40');
+                });
+                e.target.closest('.sample-label').classList.remove('border-slate-800', 'bg-slate-950/40');
+                e.target.closest('.sample-label').classList.add('border-sky-500/50', 'bg-sky-950/20');
+
+                resetSimulation();
+                showToast(`已更換電泳試劑：${sampleConfigs[state.sampleType].name}`);
+            });
+        });
+
+        resetExpBtn.addEventListener('click', resetSimulation);
+        addDropBtn.addEventListener('click', () => {
+            state.bands.spread = Math.max(3.5, state.bands.spread - 1.5);
+            initParticles();
+            showToast('已於中央重新補充一滴混合電解質樣品。', 'fa-eyedropper');
+        });
+
+        // Mouse hover inspector on Canvas
+        canvas.addEventListener('mousemove', (e) => {
+            if (state.viewMode !== 'micro') {
+                particleTooltip.classList.add('hidden');
+                return;
+            }
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            const hovered = state.particles.find(p => {
+                const dx = p.x - mouseX;
+                const dy = p.y - mouseY;
+                return Math.sqrt(dx * dx + dy * dy) < p.radius + 6;
+            });
+
+            if (hovered) {
+                particleTooltip.classList.remove('hidden');
+                particleTooltip.style.left = `${mouseX + 12}px`;
+                particleTooltip.style.top = `${mouseY + 12}px`;
+                particleTooltip.innerHTML = `
+                    <div class="font-bold text-sky-300">${hovered.formula}</div>
+                    <div class="text-[10px] text-slate-300">電荷: ${hovered.charge > 0 ? '+' : ''}${hovered.charge}</div>
+                    <div class="text-[10px] text-slate-400">移動受力: 向${(hovered.charge * state.polarity) > 0 ? '右(負極)' : '左(正極)'}</div>
+                `;
+            } else {
+                particleTooltip.classList.add('hidden');
+            }
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            particleTooltip.classList.add('hidden');
+        });
+
+        // Interactive Quiz Logic
+        const quizData = [
+            {
+                q: "在以 KNO₃ 潤濕的濾紙中央滴加 KMnO₄ (紫紅色) 與 CuSO₄ (藍色) 後通電，紫紅色色斑往正極移動的原因是？",
+                options: [
+                    "K⁺ 為陽離子，帶正電往正極移動",
+                    "MnO₄⁻ 為帶負電的陰離子，受正極（陽極）靜電吸引而向正極移動",
+                    "Cu²⁺ 受到負極排斥，被迫往正極推擠",
+                    "水分子受電解產生氫氣將其推向正極"
+                ],
+                correct: 1,
+                explain: "正確！MnO₄⁻（過錳酸根）為陰離子（帶負電），依據「異性相吸」，會朝向電源的正極（陽極）移動。"
+            },
+            {
+                q: "實驗中濾紙必須先以硝酸鉀 (KNO₃) 水溶液潤濕，其主要功用為何？",
+                options: [
+                    "改變待測離子的顏色，使其更容易辨識",
+                    "提供自由移動的離子作為導電介質，且其離子均為無色不干擾觀察",
+                    "加速水的蒸發以固定色斑",
+                    "與銅離子反應產生沉澱以方便測量"
+                ],
+                correct: 1,
+                explain: "正確！乾燥的濾紙不導電，KNO₃ 解離出 K⁺ 與 NO₃⁻ 能形成良好導電通路，且兩者皆為無色，不會遮蔽有色離子的移動跡線。"
+            },
+            {
+                q: "若將直流電源供應器的極性反轉（原本的正極改為負極，負極改為正極），則濾紙上已分離的藍色 Cu²⁺ 色帶將會發生何種現象？",
+                options: [
+                    "顏色立刻消失分解",
+                    "掉頭轉向，朝新的負極方向漂移移動",
+                    "繼續維持向原本的負極移動不變",
+                    "沉澱於濾紙纖維中無法再移動"
+                ],
+                correct: 1,
+                explain: "正確！因為電場方向反轉，Cu²⁺（帶正電）始終會朝向帶負電的電極移動，因此會掉頭朝新的負極漂移。"
+            }
+        ];
+
+        let currentQuizIndex = 0;
+        let quizScore = 0;
+        let answered = false;
+
+        const quizModal = document.getElementById('quizModal');
+        const openQuizBtn = document.getElementById('openQuizBtn');
+        const closeQuizBtn = document.getElementById('closeQuizBtn');
+        const quizQuestionNumber = document.getElementById('quizQuestionNumber');
+        const quizQuestionText = document.getElementById('quizQuestionText');
+        const quizOptionsContainer = document.getElementById('quizOptionsContainer');
+        const quizFeedback = document.getElementById('quizFeedback');
+        const nextQuizBtn = document.getElementById('nextQuizBtn');
+        const quizScoreText = document.getElementById('quizScoreText');
+
+        function loadQuizQuestion(index) {
+            answered = false;
+            const q = quizData[index];
+            quizQuestionNumber.textContent = `題目 ${index + 1} / ${quizData.length}`;
+            quizQuestionText.textContent = q.q;
+            quizFeedback.className = 'hidden p-3 rounded-xl text-xs font-medium';
+            quizFeedback.textContent = '';
+            nextQuizBtn.textContent = index === quizData.length - 1 ? '完成測驗' : '下一題';
+            quizScoreText.textContent = `答對題數：${quizScore}`;
+
+            quizOptionsContainer.innerHTML = '';
+            q.options.forEach((optText, optIdx) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full text-left p-3 rounded-xl bg-slate-800 hover:bg-slate-700/80 border border-slate-700 text-xs text-slate-200 transition';
+                btn.textContent = `${String.fromCharCode(65 + optIdx)}. ${optText}`;
+                btn.addEventListener('click', () => checkQuizAnswer(optIdx, btn));
+                quizOptionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkQuizAnswer(selectedIdx, btnElement) {
+            if (answered) return;
+            answered = true;
+            const q = quizData[currentQuizIndex];
+            const allOptionBtns = quizOptionsContainer.querySelectorAll('button');
+
+            if (selectedIdx === q.correct) {
+                quizScore++;
+                btnElement.classList.add('bg-emerald-900/60', 'border-emerald-500', 'text-emerald-200');
+                quizFeedback.className = 'p-3 rounded-xl text-xs font-medium bg-emerald-950/80 text-emerald-300 border border-emerald-800 block';
+                quizFeedback.innerHTML = `<i class="fa-solid fa-check-circle mr-1"></i> <strong>答對了！</strong> ${q.explain}`;
+            } else {
+                btnElement.classList.add('bg-rose-900/60', 'border-rose-500', 'text-rose-200');
+                allOptionBtns[q.correct].classList.add('bg-emerald-900/60', 'border-emerald-500', 'text-emerald-200');
+                quizFeedback.className = 'p-3 rounded-xl text-xs font-medium bg-rose-950/80 text-rose-300 border border-rose-800 block';
+                quizFeedback.innerHTML = `<i class="fa-solid fa-xmark-circle mr-1"></i> <strong>答錯囉！</strong> ${q.explain}`;
+            }
+            quizScoreText.textContent = `答對題數：${quizScore}`;
+        }
+
+        nextQuizBtn.addEventListener('click', () => {
+            if (!answered) {
+                showToast('請先點選一個選項作答！', 'fa-triangle-exclamation');
+                return;
+            }
+            if (currentQuizIndex < quizData.length - 1) {
+                currentQuizIndex++;
+                loadQuizQuestion(currentQuizIndex);
+            } else {
+                // Completed
+                quizFeedback.className = 'p-4 rounded-xl text-sm font-bold bg-sky-950 text-sky-200 border border-sky-700 block text-center';
+                quizFeedback.innerHTML = `🎉 恭喜完成測驗！總得分：${quizScore} / ${quizData.length}<br><span class="text-xs font-normal text-slate-300">已充分掌握離子電泳遷移之本質！</span>`;
+                nextQuizBtn.textContent = '重新測驗';
+                nextQuizBtn.onclick = () => {
+                    currentQuizIndex = 0;
+                    quizScore = 0;
+                    loadQuizQuestion(0);
+                };
+            }
+        });
+
+        openQuizBtn.addEventListener('click', () => {
+            quizModal.classList.remove('hidden');
+            loadQuizQuestion(currentQuizIndex);
+        });
+
+        closeQuizBtn.addEventListener('click', () => {
+            quizModal.classList.add('hidden');
+        });
+
+        // Main Animation Loop
+        let lastTime = performance.now();
+        function gameLoop(now) {
+            const dt = Math.min((now - lastTime) / 1000, 0.1);
+            lastTime = now;
+
+            updatePhysics(dt);
+            render();
+            updateTelemetryDisplay();
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Window Initializer
+        window.onload = function() {
+            handleResize();
+            initParticles();
+            updateTelemetryDisplay();
+            requestAnimationFrame(gameLoop);
+        };
+    </script>
+</body>
+</html>
