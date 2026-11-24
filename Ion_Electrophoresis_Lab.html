@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>有色陰陽離子的電泳移動互動實驗室</title>
+<style>
+  :root {
+    --bg-color: #f4f6f9;
+    --panel-bg: #ffffff;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --border-color: #cbd5e1;
+    --primary: #4f46e5;
+    --primary-hover: #4338ca;
+    --anode: #dc2626;
+    --cathode: #2563eb;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: "Microsoft JhengHei", "PingFang TC", -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--panel-bg);
+    padding: 14px 24px;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    border-left: 6px solid var(--primary);
+  }
+
+  header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  .concept-banner {
+    font-size: 18px;
+    font-weight: 700;
+    background: #eef2ff;
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: 1px solid #c7d2fe;
+    color: #3730a3;
+  }
+
+  .main-grid {
+    display: grid;
+    grid-template-columns: 360px 1.25fr;
+    gap: 16px;
+    flex: 1;
+  }
+
+  @media (max-width: 1100px) {
+    .main-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .card {
+    background: var(--panel-bg);
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .control-group {
+    margin-bottom: 16px;
+    background: #f8fafc;
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+  }
+
+  .control-label {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    display: block;
+    color: #334155;
+  }
+
+  select {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 16px;
+    font-weight: 700;
+    border: 2px solid #cbd5e1;
+    border-radius: 8px;
+    background: white;
+    color: #0f172a;
+    cursor: pointer;
+  }
+
+  select:focus {
+    outline: none;
+    border-color: var(--primary);
+  }
+
+  .slider-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .val-badge {
+    background: #e0e7ff;
+    color: #3730a3;
+    padding: 2px 10px;
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: 18px;
+  }
+
+  input[type="range"] {
+    width: 100%;
+    height: 8px;
+    accent-color: var(--primary);
+    cursor: pointer;
+  }
+
+  .btn-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .btn-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  button {
+    font-size: 15.5px;
+    font-weight: 700;
+    padding: 10px 12px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.1s, background-color 0.2s;
+  }
+
+  button:active {
+    transform: scale(0.98);
+  }
+
+  .btn-polarity {
+    background: #f59e0b;
+    color: white;
+    width: 100%;
+    margin-top: 10px;
+    font-size: 16px;
+  }
+  .btn-polarity:hover { background: #d97706; }
+
+  .btn-mode {
+    background: #e2e8f0;
+    color: #334155;
+    border: 2px solid transparent;
+  }
+  .btn-mode.active {
+    background: #eef2ff;
+    color: var(--primary);
+    border-color: var(--primary);
+  }
+
+  .btn-speed {
+    background: #e2e8f0;
+    color: #334155;
+  }
+  .btn-speed.active {
+    background: var(--primary);
+    color: white;
+  }
+
+  .btn-reset {
+    background: #475569;
+    color: white;
+    width: 100%;
+    margin-top: 8px;
+  }
+  .btn-reset:hover { background: #334155; }
+
+  /* 離子資訊卡片 */
+  .ion-info-box {
+    background: #fffbeb;
+    border: 1px solid #fcd34d;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: auto;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* 右側模擬與原理區 */
+  .sim-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex: 1;
+  }
+
+  canvas#electrophoresisCanvas {
+    width: 100%;
+    height: 360px;
+    border: 2px solid #cbd5e1;
+    border-radius: 10px;
+    background: #ffffff;
+  }
+
+  .legend-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+    padding: 10px;
+    background: #f8fafc;
+    border-radius: 8px;
+    margin-top: 12px;
+    border: 1px solid #e2e8f0;
+    font-size: 15.5px;
+    font-weight: 700;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .badge-ion {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .observation-panel {
+    margin-top: 12px;
+    padding: 14px 16px;
+    border-radius: 8px;
+    background: #f0fdf4;
+    border-left: 5px solid #16a34a;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #14532d;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>⚡ 有色陰陽離子的電泳移動實驗室（濕潤濾紙法）</h1>
+  <div class="concept-banner">
+    陽離子（+）向負極移動 ｜ 陰離子（−）向正極移動
+  </div>
+</header>
+
+<div class="main-grid">
+  <!-- 左欄：控制面板 -->
+  <div class="card">
+    <div class="card-title">🎛️ 電泳實驗參數設定</div>
+
+    <div class="control-group">
+      <label class="control-label" for="electrolyteSelect">1. 選擇中央滴加的電解質溶液</label>
+      <select id="electrolyteSelect" onchange="resetExperiment()">
+        <option value="KMnO4">過錳酸鉀 KMnO₄（紫紅色陰離子 MnO₄⁻）</option>
+        <option value="CuSO4">硫酸銅 CuSO₄（藍色陽離子 Cu²⁺）</option>
+        <option value="K2Cr2O7">二鉻酸鉀 K₂Cr₂O₇（橘紅色陰離子 Cr₂O₇²⁻）</option>
+        <option value="MIX">混合液：CuSO₄ + KMnO₄（雙向分離驗證）</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <div class="slider-header">
+        <span>2. 直流電源電壓（V）：</span>
+        <span class="val-badge" id="voltDisplay">25 V</span>
+      </div>
+      <input type="range" id="voltSlider" min="0" max="50" step="5" value="25" oninput="updateVoltage()">
+      <button class="btn-polarity" onclick="flipPolarity()">🔄 一鍵正負極反轉（切換左右電極）</button>
+    </div>
+
+    <div class="control-group">
+      <span class="control-label">3. 觀察視角模式切換</span>
+      <div class="btn-grid-2">
+        <button class="btn-mode active" id="modeMacro" onclick="setViewMode('macro')">👁️ 巨觀色帶擴散</button>
+        <button class="btn-mode" id="modeMicro" onclick="setViewMode('micro')">🔬 微觀離子透視</button>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <span class="control-label">4. 時間快轉倍率</span>
+      <div class="btn-grid-3">
+        <button class="btn-speed active" id="spd1" onclick="setSpeed(1)">1x 正常</button>
+        <button class="btn-speed" id="spd5" onclick="setSpeed(5)">5x 加速</button>
+        <button class="btn-speed" id="spd10" onclick="setSpeed(10)">10x 極速</button>
+      </div>
+      <button class="btn-reset" onclick="resetExperiment()">💧 重新在中央滴加液滴（重置）</button>
+    </div>
+
+    <div class="ion-info-box" id="ionInfoBox">
+      <!-- 動態填入離子解離資訊 -->
+    </div>
+  </div>
+
+  <!-- 右欄：模擬畫布與現象解析 -->
+  <div class="card">
+    <div class="card-title">
+      <span>🧪 濕潤硝酸鉀（KNO<sub>3</sub>）濾紙電泳槽</span>
+      <span style="font-size:14px; color:#64748b;" id="timerDisplay">通電時間：0 秒</span>
+    </div>
+
+    <div class="sim-wrapper">
+      <canvas id="electrophoresisCanvas" width="760" height="360"></canvas>
+
+      <div class="legend-bar" id="legendBar">
+        <!-- 動態顯示目前溶液中的離子圖例 -->
+      </div>
+
+      <div class="observation-panel" id="observationPanel">
+        <!-- 動態顯示實驗觀察提示 -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const canvas = document.getElementById('electrophoresisCanvas');
+  const ctx = canvas.getContext('2d');
+
+  // 狀態變數
+  let voltage = 25;         // 0 ~ 50 V
+  let leftIsPositive = true; // true: 左正右負；false: 左負右正
+  let viewMode = 'macro';    // 'macro' 或 'micro'
+  let simSpeed = 1;
+  let elapsedSeconds = 0;
+
+  // 濾紙幾何範圍
+  const PAPER = {
+    x: 110,
+    y: 115,
+    w: 540,
+    h: 130
+  };
+  const CENTER_X = PAPER.x + PAPER.w / 2;
+  const CENTER_Y = PAPER.y + PAPER.h / 2;
+
+  // 離子粒子陣列
+  let ions = [];
+
+  // 電解質資料庫
+  const ELECTROLYTES = {
+    KMnO4: {
+      name: "過錳酸鉀（KMnO₄）",
+      equation: "KMnO₄(aq) → K⁺(aq) + MnO₄⁻(aq)",
+      desc: "<strong>K⁺ 為無色陽離子</strong>（向負極移動但肉眼看不見）；<strong>MnO₄⁻ 為紫紅色陰離子</strong>（帶負電，會向<strong>正極（+）</strong>移動）。",
+      species: [
+        { symbol: "K⁺", charge: +1, color: "rgba(148, 163, 184, 0.35)", macroColor: null, count: 45, mobility: 1.05 },
+        { symbol: "MnO₄⁻", charge: -1, color: "#9333ea", macroColor: [147, 51, 234], count: 45, mobility: 1.0 }
+      ]
+    },
+    CuSO4: {
+      name: "硫酸銅（CuSO₄）",
+      equation: "CuSO₄(aq) → Cu²⁺(aq) + SO₄²⁻(aq)",
+      desc: "<strong>Cu²⁺ 為藍色陽離子</strong>（帶正電，會向<strong>負極（−）</strong>移動）；<strong>SO₄²⁻ 為無色陰離子</strong>（向正極移動但肉眼看不見）。",
+      species: [
+        { symbol: "Cu²⁺", charge: +2, color: "#0284c7", macroColor: [2, 132, 199], count: 45, mobility: 0.95 },
+        { symbol: "SO₄²⁻", charge: -2, color: "rgba(148, 163, 184, 0.35)", macroColor: null, count: 45, mobility: 1.0 }
+      ]
+    },
+    K2Cr2O7: {
+      name: "二鉻酸鉀（K₂Cr₂O₇）",
+      equation: "K₂Cr₂O₇(aq) → 2 K⁺(aq) + Cr₂O₇²⁻(aq)",
+      desc: "<strong>K⁺ 為無色陽離子</strong>；<strong>Cr₂O₇²⁻ 為橘紅色陰離子</strong>（帶負電，會向<strong>正極（− → +）</strong>移動）。",
+      species: [
+        { symbol: "K⁺", charge: +1, color: "rgba(148, 163, 184, 0.35)", macroColor: null, count: 50, mobility: 1.05 },
+        { symbol: "Cr₂O₇²⁻", charge: -2, color: "#ea580c", macroColor: [234, 88, 12], count: 35, mobility: 0.92 }
+      ]
+    },
+    MIX: {
+      name: "混合液（CuSO₄ + KMnO₄）",
+      equation: "同時含有 Cu²⁺（藍色陽離子）與 MnO₄⁻（紫紅色陰離子）",
+      desc: "通電後可觀察到<strong>雙向色帶分離</strong>：<strong>藍色 Cu²⁺</strong> 往負極移動，<strong>紫紅色 MnO₄⁻</strong> 往正極移動，原本重疊的藍紫色液滴分裂成兩道色帶！",
+      species: [
+        { symbol: "Cu²⁺", charge: +2, color: "#0284c7", macroColor: [2, 132, 199], count: 45, mobility: 0.95 },
+        { symbol: "MnO₄⁻", charge: -1, color: "#9333ea", macroColor: [147, 51, 234], count: 45, mobility: 1.0 },
+        { symbol: "K⁺", charge: +1, color: "rgba(148, 163, 184, 0.25)", macroColor: null, count: 30, mobility: 1.05 },
+        { symbol: "SO₄²⁻", charge: -2, color: "rgba(148, 163, 184, 0.25)", macroColor: null, count: 30, mobility: 1.0 }
+      ]
+    }
+  };
+
+  function updateVoltage() {
+    voltage = parseInt(document.getElementById('voltSlider').value, 10);
+    document.getElementById('voltDisplay').textContent = voltage + ' V';
+    updateObservationText();
+  }
+
+  function flipPolarity() {
+    leftIsPositive = !leftIsPositive;
+    updateObservationText();
+  }
+
+  function setViewMode(mode) {
+    viewMode = mode;
+    document.getElementById('modeMacro').classList.toggle('active', mode === 'macro');
+    document.getElementById('modeMicro').classList.toggle('active', mode === 'micro');
+    updateObservationText();
+  }
+
+  function setSpeed(s) {
+    simSpeed = s;
+    document.querySelectorAll('.btn-speed').forEach(b => b.classList.remove('active'));
+    document.getElementById('spd' + s).classList.add('active');
+  }
+
+  function resetExperiment() {
+    const key = document.getElementById('electrolyteSelect').value;
+    const data = ELECTROLYTES[key];
+    elapsedSeconds = 0;
+    ions = [];
+
+    // 在濾紙正中央半徑 16px 的圓形液滴區域內生成初始離子
+    data.species.forEach(sp => {
+      for (let i = 0; i < sp.count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const dist = Math.sqrt(Math.random()) * 15;
+        ions.push({
+          x: CENTER_X + Math.cos(angle) * dist,
+          y: CENTER_Y + Math.sin(angle) * dist,
+          symbol: sp.symbol,
+          charge: sp.charge,
+          color: sp.color,
+          macroColor: sp.macroColor,
+          mobility: sp.mobility,
+          r: sp.macroColor ? 6.5 : 4.5
+        });
+      }
+    });
+
+    // 更新左側離子解離說明
+    document.getElementById('ionInfoBox').innerHTML = `
+      <div style="font-weight:700; color:#92400e; margin-bottom:4px;">📌 溶液解離與顯色解析</div>
+      <div style="font-family:monospace; font-weight:700; background:white; padding:4px 8px; border-radius:4px; margin-bottom:6px;">${data.equation}</div>
+      <div>${data.desc}</div>
+    `;
+
+    // 更新圖例列
+    const legendEl = document.getElementById('legendBar');
+    legendEl.innerHTML = data.species.map(sp => {
+      const bg = sp.macroColor ? sp.color : '#94a3b8';
+      const note = sp.macroColor ? '（有色）' : '（無色透明）';
+      return `
+        <div class="legend-item">
+          <span class="badge-ion" style="background:${bg};">${sp.charge > 0 ? '+' : '−'}</span>
+          <span>${sp.symbol} ${note}</span>
+        </div>
+      `;
+    }).join('');
+
+    updateObservationText();
+  }
+
+  function updateObservationText() {
+    const obsEl = document.getElementById('observationPanel');
+    const posSide = leftIsPositive ? "左側" : "右側";
+    const negSide = leftIsPositive ? "右側" : "左側";
+
+    if (voltage === 0) {
+      obsEl.style.backgroundColor = '#fef3c7';
+      obsEl.style.borderLeftColor = '#f59e0b';
+      obsEl.style.color = '#92400e';
+      obsEl.innerHTML = `⚠️ <strong>目前電壓為 0 V（未通電）</strong>：沒有外加電場驅動，所有陰陽離子僅在原處進行<strong>無規熱運動（布朗運動與緩慢擴散）</strong>，不會朝特定電極定向移動。`;
+    } else {
+      obsEl.style.backgroundColor = '#f0fdf4';
+      obsEl.style.borderLeftColor = '#16a34a';
+      obsEl.style.color = '#14532d';
+      const modeTip = viewMode === 'macro'
+        ? "目前為<strong>巨觀色帶模式</strong>（無色離子如 K⁺、SO₄²⁻ 肉眼不可見，僅顯示有色離子形成的擴散色帶）。"
+        : "目前為<strong>微觀離子透視模式</strong>（以灰色半透明小球顯示肉眼看不見的無色離子，可同時觀察陰陽離子反向遷移）。";
+      obsEl.innerHTML = `⚡ <strong>通電中（${voltage} V）</strong>：正極（+）在<strong>${posSide}</strong>，負極（−）在<strong>${negSide}</strong>。帶負電的陰離子朝${posSide}遷移，帶正電的陽離子朝${negSide}遷移。<br>${modeTip}`;
+    }
+  }
+
+  function stepPhysics() {
+    // 計算電場方向 (+1 代表正電場指向右邊，即左正右負；-1 代表右正左負)
+    const fieldDir = leftIsPositive ? 1 : -1;
+    // 電場漂移速度係數
+    const driftScale = (voltage / 50) * 0.28;
+
+    ions.forEach(ion => {
+      // 1. 無規熱運動（布朗運動）
+      const thermalX = (Math.random() - 0.5) * 0.55;
+      const thermalY = (Math.random() - 0.5) * 0.45;
+
+      // 2. 電場定向遷移速度：陽離子 (+charge) 順著電場往負極移動；陰離子 (-charge) 逆著電場往正極移動
+      const sign = ion.charge > 0 ? 1 : -1;
+      const driftX = sign * fieldDir * driftScale * ion.mobility;
+
+      ion.x += driftX + thermalX;
+      ion.y += thermalY;
+
+      // 限制在濕潤濾紙範圍內（到達電極夾附近時停止累積）
+      const minX = PAPER.x + 18;
+      const maxX = PAPER.x + PAPER.w - 18;
+      const minY = PAPER.y + 12;
+      const maxY = PAPER.y + PAPER.h - 12;
+
+      if (ion.x < minX) ion.x = minX + Math.random() * 4;
+      if (ion.x > maxX) ion.x = maxX - Math.random() * 4;
+      if (ion.y < minY) { ion.y = minY; }
+      if (ion.y > maxY) { ion.y = maxY; }
+    });
+  }
+
+  function drawApparatus() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // 1. 繪製上方直流電源供應器與導線
+    const boxX = 290, boxY = 16, boxW = 180, boxH = 52;
+    ctx.fillStyle = '#1e293b';
+    ctx.beginPath();
+    ctx.roundRect(boxX, boxY, boxW, boxH, 8);
+    ctx.fill();
+
+    ctx.fillStyle = '#38bdf8';
+    ctx.font = 'bold 16px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(`DC POWER: ${voltage} V`, boxX + boxW / 2, boxY + 23);
+    ctx.fillStyle = '#cbd5e1';
+    ctx.font = 'bold 12px "Microsoft JhengHei"';
+    ctx.fillText(voltage === 0 ? '狀態：斷路（未通電）' : '狀態：直流電場作用中', boxX + boxW / 2, boxY + 42);
+
+    // 左右導線與電極顏色
+    const leftColor = leftIsPositive ? '#dc2626' : '#2563eb';
+    const rightColor = leftIsPositive ? '#2563eb' : '#dc2626';
+    const leftSign = leftIsPositive ? '正極 (+)' : '負極 (−)';
+    const rightSign = leftIsPositive ? '負極 (−)' : '正極 (+)';
+
+    // 左導線
+    ctx.strokeStyle = leftColor;
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(boxX, boxY + 26);
+    ctx.lineTo(85, boxY + 26);
+    ctx.lineTo(85, CENTER_Y);
+    ctx.lineTo(PAPER.x + 12, CENTER_Y);
+    ctx.stroke();
+
+    // 右導線
+    ctx.strokeStyle = rightColor;
+    ctx.beginPath();
+    ctx.moveTo(boxX + boxW, boxY + 26);
+    ctx.lineTo(675, boxY + 26);
+    ctx.lineTo(675, CENTER_Y);
+    ctx.lineTo(PAPER.x + PAPER.w - 12, CENTER_Y);
+    ctx.stroke();
+
+    // 2. 繪製載玻片底座與濕潤濾紙條
+    ctx.fillStyle = '#e2e8f0';
+    ctx.fillRect(PAPER.x - 14, PAPER.y - 10, PAPER.w + 28, PAPER.h + 20);
+    ctx.strokeStyle = '#94a3b8';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(PAPER.x - 14, PAPER.y - 10, PAPER.w + 28, PAPER.h + 20);
+
+    // 濕潤濾紙本體
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(PAPER.x, PAPER.y, PAPER.w, PAPER.h);
+    ctx.strokeStyle = '#64748b';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(PAPER.x, PAPER.y, PAPER.w, PAPER.h);
+
+    // 中央初始滴加點虛線標記
+    ctx.strokeStyle = '#94a3b8';
+    ctx.setLineDash([5, 4]);
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(CENTER_X, PAPER.y);
+    ctx.lineTo(CENTER_X, PAPER.y + PAPER.h);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = '#64748b';
+    ctx.font = 'bold 13px "Microsoft JhengHei"';
+    ctx.fillText('初始滴加線', CENTER_X, PAPER.y + PAPER.h + 26);
+
+    // 3. 繪製離子（依巨觀或微觀模式渲染）
+    if (viewMode === 'macro') {
+      // 巨觀色帶擴散模式：僅渲染有色離子的半透明暈染光斑（模擬濾紙滲透染色）
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(PAPER.x + 2, PAPER.y + 2, PAPER.w - 4, PAPER.h - 4);
+      ctx.clip();
+
+      ions.forEach(ion => {
+        if (!ion.macroColor) return; // 無色離子在巨觀下不可見
+        const [r, g, b] = ion.macroColor;
+        const grad = ctx.createRadialGradient(ion.x, ion.y, 1, ion.x, ion.y, 24);
+        grad.addColorStop(0, `rgba(${r}, ${g}, ${b}, 0.22)`);
+        grad.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(ion.x, ion.y, 24, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      ctx.restore();
+    } else {
+      // 微觀離子透視模式：繪製清楚的帶電離子顆粒與電荷符號
+      ions.forEach(ion => {
+        ctx.beginPath();
+        ctx.arc(ion.x, ion.y, ion.r, 0, Math.PI * 2);
+        ctx.fillStyle = ion.color;
+        ctx.fill();
+        if (ion.macroColor) {
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 10px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(ion.charge > 0 ? '+' : '−', ion.x, ion.y + 0.5);
+        }
+      });
+      ctx.textBaseline = 'alphabetic';
+    }
+
+    // 4. 繪製左右兩端鱷魚夾電極與極性標籤
+    // 左電極夾
+    ctx.fillStyle = leftColor;
+    ctx.fillRect(PAPER.x - 6, PAPER.y + 22, 22, PAPER.h - 44);
+    ctx.fillStyle = leftColor;
+    ctx.font = 'bold 17px "Microsoft JhengHei"';
+    ctx.textAlign = 'center';
+    ctx.fillText(leftSign, 65, CENTER_Y + 42);
+
+    // 右電極夾
+    ctx.fillStyle = rightColor;
+    ctx.fillRect(PAPER.x + PAPER.w - 16, PAPER.y + 22, 22, PAPER.h - 44);
+    ctx.fillStyle = rightColor;
+    ctx.fillText(rightSign, 695, CENTER_Y + 42);
+
+    // 5. 若電壓 > 0，在濾紙上方繪製電場方向箭頭提示
+    if (voltage > 0) {
+      ctx.fillStyle = '#475569';
+      ctx.font = 'bold 14px "Microsoft JhengHei"';
+      const arrowText = leftIsPositive
+        ? '⚡ 電場方向（+ → −）：陽離子往右移 ｜ 陰離子往左移'
+        : '⚡ 電場方向（− ← +）：陰離子往右移 ｜ 陽離子往左移';
+      ctx.fillText(arrowText, CENTER_X, PAPER.y - 22);
+    }
+  }
+
+  let frameCounter = 0;
+  function loop() {
+    for (let s = 0; s < simSpeed; s++) {
+      stepPhysics();
+      frameCounter++;
+      if (frameCounter % 60 === 0) {
+        elapsedSeconds++;
+        document.getElementById('timerDisplay').textContent = `通電時間：${elapsedSeconds} 秒`;
+      }
+    }
+    drawApparatus();
+    requestAnimationFrame(loop);
+  }
+
+  // 啟動
+  resetExperiment();
+  loop();
+</script>
+</body>
+</html>
