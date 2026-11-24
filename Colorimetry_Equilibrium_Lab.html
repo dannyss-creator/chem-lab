@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>高中化學比色法測定平衡常數互動模擬器</title>
+<style>
+  :root {
+    --bg-color: #f4f6f9;
+    --panel-bg: #ffffff;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --border-color: #cbd5e1;
+    --primary: #b91c1c;
+    --primary-hover: #991b1b;
+    --secondary: #0f172a;
+    --accent: #2563eb;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: "Microsoft JhengHei", "PingFang TC", -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--panel-bg);
+    padding: 14px 24px;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    border-left: 6px solid var(--primary);
+  }
+
+  header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  .equation-banner {
+    font-size: 19px;
+    font-weight: 700;
+    background: #fef2f2;
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+  }
+
+  .main-grid {
+    display: grid;
+    grid-template-columns: 350px 1.15fr 1fr;
+    gap: 16px;
+    flex: 1;
+  }
+
+  @media (max-width: 1200px) {
+    .main-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .card {
+    background: var(--panel-bg);
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* 控制面板 */
+  .control-group {
+    margin-bottom: 18px;
+    background: #f8fafc;
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+  }
+
+  .slider-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .val-badge {
+    background: #fee2e2;
+    color: #991b1b;
+    padding: 2px 10px;
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: 18px;
+  }
+
+  input[type="range"] {
+    width: 100%;
+    height: 8px;
+    accent-color: var(--primary);
+    cursor: pointer;
+  }
+
+  .radio-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .radio-btn {
+    padding: 10px;
+    border: 2px solid #cbd5e1;
+    border-radius: 8px;
+    background: white;
+    color: #334155;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+  }
+
+  .radio-btn.active {
+    border-color: var(--primary);
+    background: #fef2f2;
+    color: var(--primary);
+  }
+
+  /* 公式拆解區 */
+  .formula-box {
+    background: #fffbeb;
+    border: 2px solid #fcd34d;
+    border-radius: 10px;
+    padding: 14px;
+    margin-top: auto;
+  }
+
+  .formula-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #92400e;
+    margin-bottom: 8px;
+  }
+
+  .formula-math {
+    font-size: 18px;
+    font-weight: 700;
+    font-family: monospace;
+    background: white;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #fde68a;
+    line-height: 1.6;
+    color: #1e293b;
+  }
+
+  .concept-note {
+    margin-top: 10px;
+    font-size: 14.5px;
+    line-height: 1.5;
+    color: #78350f;
+    background: #fef3c7;
+    padding: 8px 10px;
+    border-radius: 6px;
+  }
+
+  /* 中央比色管模擬區 */
+  .sim-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    flex: 1;
+  }
+
+  canvas#colorimetryCanvas {
+    width: 100%;
+    height: 410px;
+    border: 2px solid #cbd5e1;
+    border-radius: 10px;
+    background: #ffffff;
+  }
+
+  .match-banner {
+    width: 100%;
+    margin-top: 12px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 17px;
+    font-weight: 700;
+    text-align: center;
+    transition: all 0.2s;
+  }
+
+  /* 右側防呆隨機練習題區 */
+  .quiz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .btn-new-q {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .btn-new-q:hover {
+    background: #1d4ed8;
+  }
+
+  .q-stem {
+    font-size: 16.5px;
+    line-height: 1.6;
+    background: #f8fafc;
+    padding: 14px;
+    border-radius: 8px;
+    border-left: 4px solid var(--accent);
+    margin-bottom: 14px;
+    font-weight: 600;
+  }
+
+  .options-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .opt-btn {
+    text-align: left;
+    padding: 12px 14px;
+    font-size: 16px;
+    font-weight: 700;
+    background: white;
+    border: 2px solid #cbd5e1;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #1e293b;
+    transition: all 0.15s;
+  }
+
+  .opt-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: #eff6ff;
+  }
+
+  .opt-btn.correct {
+    border-color: #16a34a;
+    background: #dcfce7;
+    color: #14532d;
+  }
+
+  .opt-btn.wrong {
+    border-color: #dc2626;
+    background: #fee2e2;
+    color: #7f1d1d;
+  }
+
+  .explanation-box {
+    background: #f1f5f9;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #334155;
+    display: none;
+    margin-top: auto;
+    border: 1px solid #cbd5e1;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🧪 比色法測定平衡常數互動實驗室（FeSCN<sup>2+</sup> 血紅色錯離子）</h1>
+  <div class="equation-banner">
+    Fe<sup>3+</sup>(aq) + SCN<sup>−</sup>(aq) ⇌ FeSCN<sup>2+</sup>(aq)（血紅色）
+  </div>
+</header>
+
+<div class="main-grid">
+  <!-- 左欄：參數控制與即時公式拆解 -->
+  <div class="card">
+    <div class="card-title">🎛️ 比色管變因控制</div>
+
+    <div class="control-group">
+      <div class="slider-header">
+        <span>左管（標準液 C<sub>1</sub> = 2.0×10<sup>−4</sup> M）</span>
+      </div>
+      <div class="slider-header" style="margin-top:6px;">
+        <span>液柱高度 h<sub>1</sub>：</span>
+        <span class="val-badge" id="h1Display">5.0 cm</span>
+      </div>
+      <input type="range" id="h1Slider" min="1.0" max="10.0" step="0.1" value="5.0" oninput="updateSim()">
+    </div>
+
+    <div class="control-group">
+      <div class="slider-header">
+        <span>右管（待測液 C<sub>2</sub> = 1.6×10<sup>−4</sup> M）</span>
+      </div>
+      <div class="slider-header" style="margin-top:6px;">
+        <span>液柱高度 h<sub>2</sub>：</span>
+        <span class="val-badge" id="h2Display">8.0 cm</span>
+      </div>
+      <input type="range" id="h2Slider" min="2.0" max="10.0" step="0.5" value="8.0" oninput="updateSim()">
+    </div>
+
+    <div class="control-group">
+      <div class="slider-header">
+        <span>比色管內徑比例（左管 : 右管）</span>
+      </div>
+      <div class="radio-group">
+        <button class="radio-btn active" id="dia1Btn" onclick="setDiameterRatio(1)">1 : 1（等管徑）</button>
+        <button class="radio-btn" id="dia2Btn" onclick="setDiameterRatio(2)">1 : 2（右管較粗）</button>
+      </div>
+    </div>
+
+    <div class="formula-box">
+      <div class="formula-title">📐 即時計算公式拆解區（比爾－朗伯定律）</div>
+      <div class="formula-math" id="formulaCalc">
+        左管光學深度 C<sub>1</sub>×h<sub>1</sub> = 10.0 ×10<sup>−4</sup> M·cm<br>
+        右管光學深度 C<sub>2</sub>×h<sub>2</sub> = 12.8 ×10<sup>−4</sup> M·cm
+      </div>
+      <div class="concept-note" id="conceptNote">
+        💡 <strong>關鍵觀念</strong>：由上往下俯視時，光線穿透路徑長僅取決於「液柱高度 h」，與試管粗細（管徑）無關！當兩者顏色完全相同時，即滿足 <strong>C<sub>1</sub> × h<sub>1</sub> = C<sub>2</sub> × h<sub>2</sub></strong>。
+      </div>
+    </div>
+  </div>
+
+  <!-- 中欄：俯視色度觀察窗 + 側面比色管 -->
+  <div class="card">
+    <div class="card-title">
+      <span>👁️ 俯視色度對比與側視液柱高度</span>
+      <span style="font-size:14px; color:#64748b;">白光光源由底部向上照射</span>
+    </div>
+
+    <div class="sim-container">
+      <canvas id="colorimetryCanvas" width="480" height="410"></canvas>
+      <div class="match-banner" id="matchBanner">
+        調整左側 h<sub>1</sub> 滑桿，使上方兩個圓形觀察窗的血紅色深淺完全一致！
+      </div>
+    </div>
+  </div>
+
+  <!-- 右欄：零誤差隨機練習題 -->
+  <div class="card">
+    <div class="quiz-header">
+      <span style="font-size:18px; font-weight:700;">📝 隨堂計算檢核（零誤差自動出題）</span>
+      <button class="btn-new-q" onclick="generateQuestion()">🔄 產生新題目</button>
+    </div>
+
+    <div class="q-stem" id="qStem">題目載入中...</div>
+    <div class="options-list" id="optionsList"></div>
+    <div class="explanation-box" id="explanationBox"></div>
+  </div>
+</div>
+
+<script>
+  const canvas = document.getElementById('colorimetryCanvas');
+  const ctx = canvas.getContext('2d');
+
+  // 實驗固定濃度參數 (單位：10^-4 M)
+  const C1_UNIT = 2.0; // 2.0 x 10^-4 M
+  const C2_UNIT = 1.6; // 1.6 x 10^-4 M (平衡時應在 h1 = 6.4 cm 處顏色一致)
+  let h1 = 5.0;
+  let h2 = 8.0;
+  let diameterRatio = 1; // 1 代表 1:1，2 代表 1:2
+
+  function setDiameterRatio(ratio) {
+    diameterRatio = ratio;
+    document.getElementById('dia1Btn').classList.toggle('active', ratio === 1);
+    document.getElementById('dia2Btn').classList.toggle('active', ratio === 2);
+    updateSim();
+  }
+
+  // 根據光學深度 (C * h) 計算比爾定律穿透光 RGB 顏色
+  function getBeerLambertColor(opticalDepth) {
+    // opticalDepth 範圍約 0 ~ 25 (單位 10^-4 M * cm)
+    // 莫耳吸光係數模擬參數，讓顏色在 8~18 之間有明顯的深淺梯度
+    const k = 0.095;
+    const transmittance = Math.exp(-k * opticalDepth); // T = 10^(-ebc) 或 e^(-kc)
+    
+    // 白光背景 (255, 255, 255) 衰減綠色與藍色波段，保留紅色波段形成血紅色
+    const r = Math.round(255 * Math.pow(transmittance, 0.18));
+    const g = Math.round(255 * Math.pow(transmittance, 1.35));
+    const b = Math.round(255 * Math.pow(transmittance, 1.45));
+    return `rgb(${r}, ${g}, ${b})`;
+  }
+
+  function updateSim() {
+    h1 = parseFloat(document.getElementById('h1Slider').value);
+    h2 = parseFloat(document.getElementById('h2Slider').value);
+
+    document.getElementById('h1Display').textContent = h1.toFixed(1) + ' cm';
+    document.getElementById('h2Display').textContent = h2.toFixed(1) + ' cm';
+
+    const od1 = C1_UNIT * h1;
+    const od2 = C2_UNIT * h2;
+    const diff = Math.abs(od1 - od2);
+
+    // 更新即時公式拆解區
+    const calcHtml = `
+      左管：C<sub>1</sub> × h<sub>1</sub> = ${C1_UNIT.toFixed(1)} × ${h1.toFixed(1)} = <span style="color:#b91c1c;">${od1.toFixed(2)}</span> (×10<sup>−4</sup> M·cm)<br>
+      右管：C<sub>2</sub> × h<sub>2</sub> = ${C2_UNIT.toFixed(1)} × ${h2.toFixed(1)} = <span style="color:#1d4ed8;">${od2.toFixed(2)}</span> (×10<sup>−4</sup> M·cm)<br>
+      推算待測濃度 C<sub>2</sub> = (C<sub>1</sub> × h<sub>1</sub>) / h<sub>2</sub> = <strong>${(od1 / h2).toFixed(2)} × 10<sup>−4</sup> M</strong>
+    `;
+    document.getElementById('formulaCalc').innerHTML = calcHtml;
+
+    const noteEl = document.getElementById('conceptNote');
+    if (diameterRatio === 2) {
+      noteEl.innerHTML = `🔍 <strong>管徑切換為 1:2 驗證</strong>：雖然右管變粗（體積變大），但只要液柱高度 h<sub>2</sub> 不變，由上往下俯視的單位面積吸收粒子數完全相同，<strong>俯視圓形觀察窗的顏色深淺不會改變</strong>！`;
+    } else {
+      noteEl.innerHTML = `💡 <strong>關鍵觀念</strong>：由上往下俯視時，光線穿透路徑長僅取決於「液柱高度 h」，與試管粗細（管徑）無關！當兩者顏色完全相同時，即滿足 <strong>C<sub>1</sub> × h<sub>1</sub> = C<sub>2</sub> × h<sub>2</sub></strong>。`;
+    }
+
+    // 更新比色結果提示條
+    const banner = document.getElementById('matchBanner');
+    if (diff <= 0.25) {
+      banner.style.backgroundColor = '#dcfce7';
+      banner.style.color = '#14532d';
+      banner.style.border = '2px solid #16a34a';
+      banner.innerHTML = `✅ <strong>比色成功！</strong>兩管俯視色度完全一致（C<sub>1</sub>h<sub>1</sub> ≈ C<sub>2</sub>h<sub>2</sub>），成功測得 C<sub>2</sub> = 1.6×10<sup>−4</sup> M！`;
+    } else if (od1 < od2) {
+      banner.style.backgroundColor = '#fef3c7';
+      banner.style.color = '#92400e';
+      banner.style.border = '1px solid #f59e0b';
+      banner.innerHTML = `⬅️ 左管（標準液）俯視顏色<strong>較淺</strong>，請調高左管液柱高度 h<sub>1</sub>。`;
+    } else {
+      banner.style.backgroundColor = '#fee2e2';
+      banner.style.color = '#991b1b';
+      banner.style.border = '1px solid #ef4444';
+      banner.innerHTML = `➡️ 左管（標準液）俯視顏色<strong>較深</strong>，請降低左管液柱高度 h<sub>1</sub>。`;
+    }
+
+    drawCanvas(od1, od2);
+  }
+
+  function drawCanvas(od1, od2) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const leftX = 145;
+    const rightX = 335;
+
+    // 1. 繪製上方「由上往下俯視的圓形色度觀察窗」外框
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillRect(30, 12, 420, 130);
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(30, 12, 420, 130);
+
+    ctx.fillStyle = '#334155';
+    ctx.font = 'bold 15px "Microsoft JhengHei"';
+    ctx.textAlign = 'center';
+    ctx.fillText('👁️ 由上往下俯視之圓形色度觀察窗（比色判讀區）', 240, 34);
+
+    // 左觀察窗（半徑固定 34）
+    const r1Top = 34;
+    const r2Top = diameterRatio === 1 ? 34 : 44; // 管徑變粗時俯視圓面積變大，但顏色深淺不變
+
+    // 繪製左圓窗
+    ctx.beginPath();
+    ctx.arc(leftX, 85, r1Top, 0, Math.PI * 2);
+    ctx.fillStyle = getBeerLambertColor(od1);
+    ctx.fill();
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = '#334155';
+    ctx.stroke();
+
+    // 繪製右圓窗
+    ctx.beginPath();
+    ctx.arc(rightX, 85, r2Top, 0, Math.PI * 2);
+    ctx.fillStyle = getBeerLambertColor(od2);
+    ctx.fill();
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = '#334155';
+    ctx.stroke();
+
+    // 2. 繪製下方「側視垂直比色管」
+    const tubeBottomY = 365;
+    const maxTubeHeight = 185; // 對應 10.0 cm
+    const w1 = 44;
+    const w2 = diameterRatio === 1 ? 44 : 74;
+
+    drawTube(leftX, tubeBottomY, w1, maxTubeHeight, h1, C1_UNIT, '標準液 (左管)', '#b91c1c');
+    drawTube(rightX, tubeBottomY, w2, maxTubeHeight, h2, C2_UNIT, '待測液 (右管)', '#1d4ed8');
+
+    // 繪製底部白光光源板
+    ctx.fillStyle = '#fef08a';
+    ctx.fillRect(60, 372, 360, 16);
+    ctx.strokeStyle = '#ca8a04';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(60, 372, 360, 16);
+    ctx.fillStyle = '#854d0e';
+    ctx.font = 'bold 12px "Microsoft JhengHei"';
+    ctx.fillText('☀️ 均勻白光光源板（光線垂直向上穿透液柱）', 240, 384);
+  }
+
+  function drawTube(centerX, bottomY, width, maxHeight, heightCm, concUnit, label, labelColor) {
+    const liquidHeight = (heightCm / 10.0) * maxHeight;
+    const topY = bottomY - maxHeight;
+    const liquidTopY = bottomY - liquidHeight;
+
+    // 側視溶液顏色（側視光徑為管徑寬度，受濃度與管徑影響）
+    const sideOpticalDepth = concUnit * (width / 8.5);
+    ctx.fillStyle = getBeerLambertColor(sideOpticalDepth);
+    ctx.fillRect(centerX - width / 2, liquidTopY, width, liquidHeight);
+
+    // 繪製試管玻璃外框
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 2.5;
+    ctx.strokeRect(centerX - width / 2, topY, width, maxHeight);
+
+    // 繪製刻度線 (每 2 cm 一大格)
+    ctx.strokeStyle = 'rgba(30, 41, 59, 0.45)';
+    ctx.lineWidth = 1;
+    for (let cm = 2; cm <= 10; cm += 2) {
+      const y = bottomY - (cm / 10.0) * maxHeight;
+      ctx.beginPath();
+      ctx.moveTo(centerX - width / 2, y);
+      ctx.lineTo(centerX - width / 2 + 10, y);
+      ctx.stroke();
+    }
+
+    // 液面高度標示箭頭與文字
+    ctx.fillStyle = labelColor;
+    ctx.font = 'bold 14px "Microsoft JhengHei"';
+    ctx.textAlign = 'left';
+    ctx.fillText(`h = ${heightCm.toFixed(1)} cm`, centerX + width / 2 + 8, liquidTopY + 5);
+
+    // 底部標籤
+    ctx.textAlign = 'center';
+    ctx.font = 'bold 15px "Microsoft JhengHei"';
+    ctx.fillText(label, centerX, 404);
+  }
+
+  // ==================== 防呆零誤差隨機出題系統 ====================
+  let currentAnswerStr = "";
+  let currentExplanation = "";
+
+  function generateQuestion() {
+    const expBox = document.getElementById('explanationBox');
+    expBox.style.display = 'none';
+
+    // 1. 先產生乾淨可整除的亂數參數，確保計算 100% 精確無浮點誤差
+    const c1Choices = [1.5, 2.0, 2.5, 3.0, 4.0];
+    const h2Choices = [5.0, 6.0, 8.0, 10.0];
+    const c2Choices = [1.0, 1.2, 1.5, 1.8, 2.4, 3.0];
+
+    const c1 = c1Choices[Math.floor(Math.random() * c1Choices.length)];
+    const h2 = h2Choices[Math.floor(Math.random() * h2Choices.length)];
+    let c2 = c2Choices[Math.floor(Math.random() * c2Choices.length)];
+    if (c2 === c1) c2 = 1.2;
+
+    // 反推精確的 h1 = (c2 * h2) / c1
+    const h1Calc = Number(((c2 * h2) / c1).toFixed(2));
+    // 由變數反算 C2，保證與題幹完全一致
+    const exactC2 = Number(((c1 * h1Calc) / h2).toFixed(2));
+    const diaText = Math.random() > 0.5 ? "相同（1：1）" : "不同（標準管：待測管＝1：2）";
+
+    document.getElementById('qStem').innerHTML = `
+      進行比色法測定 FeSCN<sup>2+</sup> 濃度實驗時，兩支比色管的管徑比例為 <strong>${diaText}</strong>。已知標準液濃度 C<sub>1</sub> = <strong>${c1.toFixed(1)} × 10<sup>−4</sup> M</strong>，當標準液液柱高度調整為 h<sub>1</sub> = <strong>${h1Calc} cm</strong>，待測液液柱高度為 h<sub>2</sub> = <strong>${h2.toFixed(1)} cm</strong> 時，由上往下俯視兩管的血紅色深淺完全相同。請問待測液濃度 C<sub>2</sub> 為多少？
+    `;
+
+    // 2. 產生唯一正確答案字串與三個合理誘答選項（如倒數代錯、未換算等）
+    currentAnswerStr = `${exactC2.toFixed(2)} × 10⁻⁴ M`;
+
+    const wrong1 = Number(((c1 * h2) / h1Calc).toFixed(2)); // 分子分母代反
+    const wrong2 = Number((exactC2 * 2).toFixed(2));         // 誤以為管徑 1:2 要乘以 2
+    const wrong3 = Number((exactC2 * 0.5).toFixed(2));       // 誤以為管徑 1:2 要除以 2
+
+    const rawSet = new Set([
+      currentAnswerStr,
+      `${wrong1.toFixed(2)} × 10⁻⁴ M`,
+      `${wrong2.toFixed(2)} × 10⁻⁴ M`,
+      `${wrong3.toFixed(2)} × 10⁻⁴ M`
+    ]);
+
+    // 若有重複數值則補齊
+    let fallbackVal = 0.75;
+    while (rawSet.size < 4) {
+      rawSet.add(`${fallbackVal.toFixed(2)} × 10⁻⁴ M`);
+      fallbackVal += 0.35;
+    }
+
+    // 洗牌選項
+    const options = Array.from(rawSet).sort(() => Math.random() - 0.5);
+    const labels = ['(A)', '(B)', '(C)', '(D)'];
+
+    const listEl = document.getElementById('optionsList');
+    listEl.innerHTML = '';
+
+    options.forEach((optText, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'opt-btn';
+      btn.textContent = `${labels[idx]}  ${optText}`;
+      btn.onclick = () => checkAnswer(btn, optText);
+      listEl.appendChild(btn);
+    });
+
+    currentExplanation = `
+      <strong>✅ 正確答案：${currentAnswerStr}</strong><br>
+      <strong>解析步驟：</strong><br>
+      1. 俯視比色法僅與光線穿透的液柱高度有關，與試管管徑大小無關。<br>
+      2. 兩管色度相同時滿足 <strong>C<sub>1</sub> × h<sub>1</sub> = C<sub>2</sub> × h<sub>2</sub></strong>。<br>
+      3. 代入數值：(${c1.toFixed(1)} × 10<sup>−4</sup> M) × ${h1Calc} cm = C<sub>2</sub> × ${h2.toFixed(1)} cm<br>
+      4. 解得 C<sub>2</sub> = <strong>${exactC2.toFixed(2)} × 10<sup>−4</sup> M</strong>。
+    `;
+  }
+
+  function checkAnswer(clickedBtn, selectedText) {
+    const allBtns = document.querySelectorAll('.opt-btn');
+    allBtns.forEach(b => {
+      b.disabled = true;
+      if (b.textContent.includes(currentAnswerStr)) {
+        b.classList.add('correct');
+      }
+    });
+
+    if (selectedText !== currentAnswerStr) {
+      clickedBtn.classList.add('wrong');
+    }
+
+    const expBox = document.getElementById('explanationBox');
+    expBox.innerHTML = currentExplanation;
+    expBox.style.display = 'block';
+  }
+
+  // 初始化
+  updateSim();
+  generateQuestion();
+</script>
+</body>
+</html>
